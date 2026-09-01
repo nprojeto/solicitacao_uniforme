@@ -254,22 +254,98 @@ button:disabled{opacity:.45;cursor:not-allowed}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 /* =====================================================================
-   Visualizador 3D do uniforme — Cidade Sports
-   Camisa grafite com faixas diagonais, painéis vermelhos, calção
-   vermelho com listra cinza, meião vermelho e chuteira preta.
+   Uniforme Cidade Sports em 3D.
+   A camisa, o calção e o meião são cascas paramétricas: cada altura tem
+   sua própria largura e profundidade, interpoladas por Catmull-Rom, com
+   seção transversal em superelipse — o que dá ombro, peito, cintura e
+   panturrilha em vez de cilindros. Texturas desenhadas em canvas.
    ===================================================================== */
 const Uniforme3D = (function () {
 
-  const CINZA_CLARO = '#565C64';
-  const CINZA = '#454A51';
-  const CINZA_ESCURO = '#33383E';
-  const VERMELHO = '#D9202C';
-  const VERMELHO_ESC = '#A9161F';
+  const VERMELHO = '#D6202B';
+  const VERMELHO_ESC = '#9E141C';
+  const CINZA_TOPO = '#5A6068';
+  const CINZA = '#474D55';
+  const CINZA_FUNDO = '#31353B';
 
-  let cena, camera, renderer, kit, animando = false, palco;
-  let alvoY = 0, alvoX = 0, girY = 0, girX = 0, distancia = 5.6, alvoDist = 5.6;
+  let cena, camera, renderer, kit, palco, animando = false;
+  let alvoY = -0.28, alvoX = 0.04, girY = -0.28, girX = 0.04;
+  let distancia = 6.2, alvoDist = 6.2;
 
-  /* ------------------------- texturas em canvas ------------------------- */
+  /* ======================= interpolação de perfil ======================= */
+
+  function catmull(p0, p1, p2, p3, t) {
+    const t2 = t * t, t3 = t2 * t;
+    return 0.5 * ((2 * p1) + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (-p0 + 3 * p1 - 3 * p2 + p3) * t3);
+  }
+
+  function amostrar(chaves, t) {
+    const n = chaves.length - 1;
+    const f = Math.min(t, 0.999999) * n;
+    const i = Math.floor(f);
+    const local = f - i;
+    const c = function (k) { return chaves[Math.max(0, Math.min(n, k))]; };
+    return {
+      y: catmull(c(i - 1).y, c(i).y, c(i + 1).y, c(i + 2).y, local),
+      rx: catmull(c(i - 1).rx, c(i).rx, c(i + 1).rx, c(i + 2).rx, local),
+      rz: catmull(c(i - 1).rz, c(i).rz, c(i + 1).rz, c(i + 2).rz, local)
+    };
+  }
+
+  /* Seção em superelipse: expoente 2 vira círculo, acima disso encorpa. */
+  function contorno(angulo, rx, rz, expoente) {
+    const s = Math.sin(angulo), c = Math.cos(angulo);
+    const p = 2 / expoente;
+    return {
+      x: Math.sign(s) * Math.pow(Math.abs(s), p) * rx,
+      z: Math.sign(c) * Math.pow(Math.abs(c), p) * rz
+    };
+  }
+
+  /**
+   * Casca fechada por cima e por baixo conforme o perfil.
+   * A emenda da textura cai na lateral do corpo, onde fica o recorte
+   * vermelho: u=0 lado esquerdo, 0,25 frente, 0,5 lado direito, 0,75 costas.
+   */
+  function casca(chaves, material, opcoes) {
+    opcoes = opcoes || {};
+    const aneis = opcoes.aneis || 90;
+    const voltas = opcoes.voltas || 96;
+    const expoente = opcoes.expoente || 2.3;
+    const curvaZ = opcoes.curvaZ || function () { return 0; };
+
+    const posicoes = [], uvs = [], indices = [];
+    for (let i = 0; i <= aneis; i++) {
+      const t = i / aneis;
+      const s = amostrar(chaves, t);
+      const desloc = curvaZ(t);
+      for (let j = 0; j <= voltas; j++) {
+        const u = j / voltas;
+        const ang = -Math.PI / 2 + u * Math.PI * 2;
+        const p = contorno(ang, s.rx, s.rz, expoente);
+        posicoes.push(p.x, s.y, p.z + desloc);
+        uvs.push(u, t);
+      }
+    }
+    for (let i = 0; i < aneis; i++) {
+      for (let j = 0; j < voltas; j++) {
+        const a = i * (voltas + 1) + j;
+        const b = a + voltas + 1;
+        indices.push(a, b, a + 1, b, b + 1, a + 1);
+      }
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(posicoes, 3));
+    g.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+    g.setIndex(indices);
+    g.computeVertexNormals();
+    const m = new THREE.Mesh(g, material);
+    m.castShadow = true;
+    m.receiveShadow = true;
+    return m;
+  }
+
+  /* ============================= texturas ============================= */
 
   function tela(l, a) {
     const c = document.createElement('canvas');
@@ -277,56 +353,91 @@ const Uniforme3D = (function () {
     return { c: c, ctx: c.getContext('2d') };
   }
 
-  function fundoTecido(ctx, L, A) {
+  function finalizar(canvas, repetir) {
+    const t = new THREE.CanvasTexture(canvas);
+    t.anisotropy = 16;
+    t.encoding = THREE.sRGBEncoding;
+    if (repetir) { t.wrapS = THREE.RepeatWrapping; t.wrapT = THREE.RepeatWrapping; }
+    return t;
+  }
+
+  /* Trama diagonal de pinceladas, como na estampa da referência. */
+  function tramaDiagonal(ctx, L, A) {
     const g = ctx.createLinearGradient(0, 0, 0, A);
-    g.addColorStop(0, CINZA_CLARO);
-    g.addColorStop(0.55, CINZA);
-    g.addColorStop(1, CINZA_ESCURO);
+    g.addColorStop(0, CINZA_TOPO);
+    g.addColorStop(0.45, CINZA);
+    g.addColorStop(1, CINZA_FUNDO);
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, L, A);
 
-    // faixas diagonais tipo pincel, como na arte de referência
     ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, L, A); ctx.clip();
     ctx.translate(L / 2, A / 2);
-    ctx.rotate(-0.42);
+    ctx.rotate(-0.55);
     ctx.translate(-L, -A);
-    for (let i = 0; i < 90; i++) {
-      const x = Math.random() * L * 3;
-      const y = Math.random() * A * 3;
-      const larg = 6 + Math.random() * 26;
-      const alt = 40 + Math.random() * 190;
-      ctx.fillStyle = 'rgba(0,0,0,' + (0.05 + Math.random() * 0.14).toFixed(3) + ')';
+    for (let i = 0; i < 260; i++) {
+      const x = Math.random() * L * 2.4;
+      const y = Math.random() * A * 2.4;
+      const larg = 5 + Math.random() * 30;
+      const alt = 60 + Math.random() * 300;
+      const escuro = Math.random() > 0.35;
+      const grad = ctx.createLinearGradient(x, y, x + larg, y);
+      const cor = escuro ? '0,0,0' : '255,255,255';
+      const forca = escuro ? 0.04 + Math.random() * 0.13 : 0.02 + Math.random() * 0.05;
+      grad.addColorStop(0, 'rgba(' + cor + ',0)');
+      grad.addColorStop(0.5, 'rgba(' + cor + ',' + forca.toFixed(3) + ')');
+      grad.addColorStop(1, 'rgba(' + cor + ',0)');
+      ctx.fillStyle = grad;
       ctx.fillRect(x, y, larg, alt);
-      if (Math.random() > 0.7) {
-        ctx.fillStyle = 'rgba(255,255,255,0.035)';
-        ctx.fillRect(x + larg + 3, y + 10, larg * 0.5, alt * 0.8);
-      }
     }
     ctx.restore();
   }
 
-  function painelVermelho(ctx, cx, L, A) {
-    // painel lateral com borda mais escura, desenhado com repetição na emenda
-    [-L, 0, L].forEach(function (deslocamento) {
-      const x = cx + deslocamento;
-      const g = ctx.createLinearGradient(x - 46, 0, x + 46, 0);
-      g.addColorStop(0, VERMELHO_ESC);
-      g.addColorStop(0.5, VERMELHO);
-      g.addColorStop(1, VERMELHO_ESC);
+  /* Sombreado falso nas laterais, para o tecido não parecer chapado. */
+  function sombraLateral(ctx, L, A) {
+    [0, L / 2, L].forEach(function (cx) {
+      const g = ctx.createLinearGradient(cx - 190, 0, cx + 190, 0);
+      g.addColorStop(0, 'rgba(0,0,0,0)');
+      g.addColorStop(0.5, 'rgba(0,0,0,.34)');
+      g.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = g;
-      ctx.fillRect(x - 46, A * 0.12, 92, A);
+      ctx.fillRect(cx - 190, 0, 380, A);
     });
   }
 
-  function chama(ctx, x, y, tam, cor) {
+  function painelLateral(ctx, cx, L, A, larguraTopo, larguraBase, topo) {
+    [-L, 0, L].forEach(function (d) {
+      const x = cx + d;
+      const g = ctx.createLinearGradient(x - larguraBase, 0, x + larguraBase, 0);
+      g.addColorStop(0, VERMELHO_ESC);
+      g.addColorStop(0.45, VERMELHO);
+      g.addColorStop(1, VERMELHO_ESC);
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.moveTo(x - larguraTopo, topo);
+      ctx.lineTo(x + larguraTopo, topo);
+      ctx.lineTo(x + larguraBase, A);
+      ctx.lineTo(x - larguraBase, A);
+      ctx.closePath();
+      ctx.fill();
+    });
+  }
+
+  function chama(ctx, x, y, tam) {
     ctx.save();
     ctx.translate(x, y);
     ctx.scale(tam, tam);
-    ctx.fillStyle = cor;
+    ctx.fillStyle = '#FFFFFF';
     ctx.beginPath();
     ctx.moveTo(0, -1);
-    ctx.bezierCurveTo(0.62, -0.28, 0.58, 0.42, 0, 1);
-    ctx.bezierCurveTo(-0.58, 0.42, -0.62, -0.28, 0, -1);
+    ctx.bezierCurveTo(0.66, -0.24, 0.54, 0.5, 0, 1);
+    ctx.bezierCurveTo(-0.54, 0.5, -0.66, -0.24, 0, -1);
+    ctx.fill();
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    ctx.moveTo(0, -0.16);
+    ctx.bezierCurveTo(0.3, 0.16, 0.24, 0.56, 0, 0.72);
+    ctx.bezierCurveTo(-0.24, 0.56, -0.3, 0.16, 0, -0.16);
     ctx.fill();
     ctx.restore();
   }
@@ -334,244 +445,349 @@ const Uniforme3D = (function () {
   function escudo(ctx, x, y, r) {
     ctx.save();
     ctx.translate(x, y);
-    ctx.fillStyle = VERMELHO;
-    ctx.beginPath();
-    ctx.arc(0, 0, r, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(0,0,0,.25)';
-    ctx.lineWidth = r * 0.06;
-    ctx.stroke();
+    const g = ctx.createRadialGradient(-r * 0.3, -r * 0.35, r * 0.1, 0, 0, r);
+    g.addColorStop(0, '#EE3B44');
+    g.addColorStop(1, VERMELHO_ESC);
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill();
 
-    ctx.strokeStyle = '#fff';
+    ctx.strokeStyle = '#FFFFFF';
     ctx.lineWidth = r * 0.1;
+    ctx.lineJoin = 'round';
     ctx.beginPath();
     for (let i = 0; i < 6; i++) {
       const a = (Math.PI / 3) * i - Math.PI / 2;
-      const px = Math.cos(a) * r * 0.62, py = Math.sin(a) * r * 0.62;
+      const px = Math.cos(a) * r * 0.63, py = Math.sin(a) * r * 0.63;
       i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
     }
-    ctx.closePath();
-    ctx.stroke();
+    ctx.closePath(); ctx.stroke();
 
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold ' + (r * 0.75) + 'px Georgia, serif';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '700 ' + (r * 0.8) + 'px Georgia, "Times New Roman", serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('i', 0, r * 0.04);
     ctx.restore();
   }
 
-  function texturaCamisa() {
-    const L = 1600, A = 900;
-    const t = tela(L, A), ctx = t.ctx;
-    fundoTecido(ctx, L, A);
-
-    // emenda lateral em x=0/L (esquerda) e x=L/2 (direita)
-    painelVermelho(ctx, 0, L, A);
-    painelVermelho(ctx, L / 2, L, A);
-
-    // barra inferior
-    ctx.fillStyle = 'rgba(0,0,0,.28)';
-    ctx.fillRect(0, A - 16, L, 16);
-
-    // FRENTE — centro em x = L/4
-    const fx = L / 4;
-    chama(ctx, fx - 118, 232, 40, '#FFFFFF');
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = '600 40px Inter, Arial, sans-serif';
+  function espacado(ctx, texto, x, y, espaco) {
+    const larguras = texto.split('').map(function (c) { return ctx.measureText(c).width; });
+    const total = larguras.reduce(function (a, b) { return a + b; }, 0) + espaco * (texto.length - 1);
+    let px = x - total / 2;
+    ctx.textAlign = 'left';
+    texto.split('').forEach(function (c, i) {
+      ctx.fillText(c, px, y);
+      px += larguras[i] + espaco;
+    });
     ctx.textAlign = 'center';
-    ctx.letterSpacing && (ctx.letterSpacing = '6px');
-    ctx.fillText('UNITY', fx - 118, 322);
-    escudo(ctx, fx + 122, 258, 68);
-
-    // COSTAS — centro em x = 3L/4
-    const bx = (L * 3) / 4;
-    ctx.fillStyle = '#FFFFFF';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'alphabetic';
-    ctx.letterSpacing && (ctx.letterSpacing = '0px');
-    ctx.font = '600 92px Georgia, serif';
-    ctx.fillText('Cidade', bx + 14, 268);
-    ctx.lineWidth = 9;
-    ctx.strokeStyle = '#FFFFFF';
-    ctx.beginPath();
-    ctx.arc(bx - 168, 236, 40, Math.PI * 0.62, Math.PI * 1.38);
-    ctx.stroke();
-    ctx.font = '600 34px Inter, Arial, sans-serif';
-    ctx.letterSpacing && (ctx.letterSpacing = '14px');
-    ctx.fillText('SPORTS', bx + 26, 320);
-    ctx.letterSpacing && (ctx.letterSpacing = '0px');
-
-    const tex = new THREE.CanvasTexture(t.c);
-    tex.anisotropy = 8;
-    return tex;
   }
 
-  function texturaCalcao() {
-    const L = 1200, A = 600;
+  function texturaCamisa() {
+    const L = 2048, A = 1024;
     const t = tela(L, A), ctx = t.ctx;
-    const g = ctx.createLinearGradient(0, 0, 0, A);
-    g.addColorStop(0, '#E4242F');
-    g.addColorStop(1, '#B01A23');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, L, A);
+    tramaDiagonal(ctx, L, A);
+    painelLateral(ctx, 0, L, A, 34, 96, A * 0.16);
+    painelLateral(ctx, L / 2, L, A, 34, 96, A * 0.16);
+    sombraLateral(ctx, L, A);
 
-    // listra cinza nas laterais (x=0/L e x=L/2)
-    [0, L / 2, L].forEach(function (cx) {
-      ctx.fillStyle = CINZA;
-      ctx.fillRect(cx - 26, 0, 52, A);
-      ctx.fillStyle = 'rgba(0,0,0,.22)';
-      ctx.fillRect(cx - 30, 0, 5, A);
-      ctx.fillRect(cx + 25, 0, 5, A);
-    });
+    /* gola vermelha e ombro */
+    ctx.fillStyle = VERMELHO;
+    ctx.fillRect(0, 0, L, A * 0.045);
+    ctx.fillStyle = 'rgba(0,0,0,.25)';
+    ctx.fillRect(0, A * 0.045, L, 6);
 
-    // cós escuro
-    ctx.fillStyle = '#1D2024';
-    ctx.fillRect(0, 0, L, 34);
+    /* barra inferior */
+    ctx.fillStyle = 'rgba(0,0,0,.32)';
+    ctx.fillRect(0, A - 14, L, 14);
 
-    escudo(ctx, L / 4 + 150, A * 0.68, 42);
+    /* frente */
+    const fx = L * 0.25;
+    chama(ctx, fx - 150, A * 0.30, 34);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '600 34px Inter, Helvetica, Arial, sans-serif';
+    espacado(ctx, 'UNITY', fx - 150, A * 0.365, 7);
+    escudo(ctx, fx + 150, A * 0.325, 62);
 
-    const tex = new THREE.CanvasTexture(t.c);
-    tex.anisotropy = 8;
-    return tex;
+    /* costas */
+    const bx = L * 0.75;
+    ctx.fillStyle = '#FFFFFF';
+    ctx.textBaseline = 'alphabetic';
+    ctx.font = '600 96px Georgia, "Times New Roman", serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Cidade', bx + 18, A * 0.285);
+    ctx.lineWidth = 10;
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.arc(bx - 176, A * 0.253, 42, Math.PI * 0.6, Math.PI * 1.4);
+    ctx.stroke();
+    ctx.font = '600 34px Inter, Helvetica, Arial, sans-serif';
+    espacado(ctx, 'SPORTS', bx + 28, A * 0.335, 15);
+
+    return finalizar(t.c);
   }
 
   function texturaManga() {
-    const L = 512, A = 512;
+    const L = 1024, A = 512;
     const t = tela(L, A), ctx = t.ctx;
-    fundoTecido(ctx, L, A);
-    ctx.fillStyle = VERMELHO;
-    ctx.fillRect(0, A - 74, L, 74);
-    ctx.fillStyle = 'rgba(0,0,0,.22)';
-    ctx.fillRect(0, A - 78, L, 5);
-    return new THREE.CanvasTexture(t.c);
+    tramaDiagonal(ctx, L, A);
+    ctx.fillStyle = 'rgba(0,0,0,.2)';
+    ctx.fillRect(0, 0, L, 10);
+    return finalizar(t.c);
   }
 
-  /* ---------------------------- construção ---------------------------- */
+  function texturaCalcao() {
+    const L = 1600, A = 800;
+    const t = tela(L, A), ctx = t.ctx;
+    const g = ctx.createLinearGradient(0, 0, 0, A);
+    g.addColorStop(0, '#E1272F');
+    g.addColorStop(0.5, VERMELHO);
+    g.addColorStop(1, '#A8161E');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, L, A);
 
-  function material(textura, brilho) {
+    [0, L / 2, L].forEach(function (cx) {
+      const faixa = ctx.createLinearGradient(cx - 30, 0, cx + 30, 0);
+      faixa.addColorStop(0, '#33383E');
+      faixa.addColorStop(0.5, '#555C64');
+      faixa.addColorStop(1, '#33383E');
+      ctx.fillStyle = faixa;
+      ctx.fillRect(cx - 30, A * 0.12, 60, A);
+      ctx.fillStyle = 'rgba(0,0,0,.3)';
+      ctx.fillRect(cx - 36, A * 0.12, 6, A);
+      ctx.fillRect(cx + 30, A * 0.12, 6, A);
+    });
+    sombraLateral(ctx, L, A);
+
+    ctx.fillStyle = '#1C1F23';
+    ctx.fillRect(0, 0, L, A * 0.1);
+    ctx.fillStyle = 'rgba(255,255,255,.06)';
+    ctx.fillRect(0, A * 0.1, L, 4);
+
+    escudo(ctx, L * 0.25 + 210, A * 0.6, 40);
+    return finalizar(t.c);
+  }
+
+  function texturaMeia() {
+    const L = 512, A = 512;
+    const t = tela(L, A), ctx = t.ctx;
+    const g = ctx.createLinearGradient(0, 0, 0, A);
+    g.addColorStop(0, '#E1272F');
+    g.addColorStop(1, '#A8161E');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, L, A);
+    ctx.fillStyle = 'rgba(0,0,0,.12)';
+    for (let x = 0; x < L; x += 7) ctx.fillRect(x, 0, 3, A);
+    ctx.fillStyle = 'rgba(0,0,0,.18)';
+    ctx.fillRect(0, 0, L, A * 0.14);
+    for (let x = 0; x < L; x += 11) { ctx.fillStyle = 'rgba(0,0,0,.16)'; ctx.fillRect(x, 0, 5, A * 0.14); }
+    sombraLateral(ctx, L, A);
+    return finalizar(t.c);
+  }
+
+  /* Relevo sutil de tecido, usado como bump em todas as peças. */
+  function texturaRelevo() {
+    const n = 512;
+    const t = tela(n, n), ctx = t.ctx;
+    const img = ctx.createImageData(n, n);
+    for (let i = 0; i < n * n; i++) {
+      const v = 118 + Math.random() * 40 + (i % n % 3 === 0 ? 12 : 0);
+      img.data[i * 4] = img.data[i * 4 + 1] = img.data[i * 4 + 2] = v;
+      img.data[i * 4 + 3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+    const tex = finalizar(t.c, true);
+    tex.repeat.set(10, 10);
+    return tex;
+  }
+
+  /* ============================= materiais ============================= */
+
+  let relevo;
+
+  function tecido(textura, aspereza) {
     return new THREE.MeshStandardMaterial({
-      map: textura || null,
-      color: textura ? 0xffffff : 0xffffff,
-      roughness: brilho === undefined ? 0.78 : brilho,
-      metalness: 0.04,
+      map: textura,
+      roughness: aspereza === undefined ? 0.88 : aspereza,
+      metalness: 0.02,
+      bumpMap: relevo,
+      bumpScale: 0.008,
       side: THREE.DoubleSide
     });
   }
 
-  function corSimples(cor, aspereza) {
-    return new THREE.MeshStandardMaterial({ color: cor, roughness: aspereza || 0.8, metalness: 0.05 });
+  function solido(cor, aspereza, metal) {
+    return new THREE.MeshStandardMaterial({
+      color: cor,
+      roughness: aspereza === undefined ? 0.7 : aspereza,
+      metalness: metal || 0.05
+    });
   }
 
-  function cilindro(rTopo, rBase, altura, mat, achatarZ) {
-    const g = new THREE.CylinderGeometry(rTopo, rBase, altura, 64, 1, true, -Math.PI / 2, Math.PI * 2);
-    const m = new THREE.Mesh(g, mat);
-    if (achatarZ) m.scale.z = achatarZ;
-    return m;
+  /* ============================= montagem ============================= */
+
+  function montarCamisa(grupo) {
+    const perfil = [
+      { y: 0.00, rx: 1.04, rz: 0.56 },   // barra
+      { y: 0.30, rx: 1.00, rz: 0.545 },
+      { y: 0.62, rx: 0.95, rz: 0.525 },  // cintura
+      { y: 1.00, rx: 0.99, rz: 0.555 },
+      { y: 1.34, rx: 1.06, rz: 0.585 },  // peito
+      { y: 1.58, rx: 1.12, rz: 0.56 },
+      { y: 1.74, rx: 1.10, rz: 0.50 },   // ombro
+      { y: 1.88, rx: 0.80, rz: 0.40 },
+      { y: 1.99, rx: 0.46, rz: 0.30 },
+      { y: 2.04, rx: 0.34, rz: 0.245 }   // gola
+    ];
+    const camisa = casca(perfil, tecido(texturaCamisa()), {
+      aneis: 120, voltas: 128, expoente: 2.35,
+      curvaZ: function (t) { return 0.05 * Math.sin(Math.PI * t) * (t > 0.6 ? 0.6 : 1); }
+    });
+    grupo.add(camisa);
+
+    const gola = new THREE.Mesh(new THREE.TorusGeometry(0.335, 0.045, 20, 64), solido(0xD6202B, 0.62));
+    gola.rotation.x = Math.PI / 2;
+    gola.scale.y = 0.73;
+    gola.position.set(0, 2.045, 0.012);
+    gola.castShadow = true;
+    grupo.add(gola);
+
+    const vao = new THREE.Mesh(new THREE.CircleGeometry(0.33, 48), solido(0x0C0E11, 1));
+    vao.rotation.x = -Math.PI / 2;
+    vao.scale.y = 0.73;
+    vao.position.set(0, 2.03, 0.012);
+    grupo.add(vao);
+
+    const matManga = tecido(texturaManga());
+    [-1, 1].forEach(function (lado) {
+      const mangaPerfil = [
+        { y: 0.10, rx: 0.40, rz: 0.36 },
+        { y: -0.20, rx: 0.375, rz: 0.345 },
+        { y: -0.55, rx: 0.345, rz: 0.325 },
+        { y: -0.86, rx: 0.325, rz: 0.31 }
+      ];
+      const manga = casca(mangaPerfil, matManga, { aneis: 40, voltas: 64, expoente: 2.2 });
+      manga.position.set(lado * 0.74, 1.60, 0.02);
+      manga.rotation.z = lado * 0.62;
+      grupo.add(manga);
+
+      const punho = new THREE.Mesh(new THREE.CylinderGeometry(0.335, 0.325, 0.13, 48, 1), solido(0xD6202B, 0.66));
+      punho.position.set(lado * (0.74 + 0.86 * Math.sin(0.62)), 1.60 - 0.86 * Math.cos(0.62), 0.02);
+      punho.rotation.z = lado * 0.62;
+      punho.castShadow = true;
+      grupo.add(punho);
+    });
+  }
+
+  function montarCalcao(grupo) {
+    const mat = tecido(texturaCalcao(), 0.82);
+    const quadril = casca([
+      { y: 0.30, rx: 0.96, rz: 0.52 },
+      { y: 0.10, rx: 1.00, rz: 0.545 },
+      { y: -0.14, rx: 1.06, rz: 0.585 },
+      { y: -0.40, rx: 1.06, rz: 0.60 },
+      { y: -0.58, rx: 1.02, rz: 0.60 }
+    ], mat, { aneis: 60, voltas: 110, expoente: 2.4 });
+    grupo.add(quadril);
+
+    const cos = new THREE.Mesh(new THREE.TorusGeometry(0.97, 0.05, 16, 80), solido(0x1C1F23, 0.75));
+    cos.rotation.x = Math.PI / 2;
+    cos.scale.y = 0.545;
+    cos.position.y = 0.29;
+    grupo.add(cos);
+
+    [-1, 1].forEach(function (lado) {
+      const perna = casca([
+        { y: -0.34, rx: 0.52, rz: 0.50 },
+        { y: -0.70, rx: 0.51, rz: 0.485 },
+        { y: -1.06, rx: 0.485, rz: 0.46 },
+        { y: -1.30, rx: 0.455, rz: 0.44 }
+      ], mat, { aneis: 44, voltas: 72, expoente: 2.3 });
+      perna.position.x = lado * 0.47;
+      perna.rotation.z = lado * 0.05;
+      grupo.add(perna);
+    });
+
+    /* cordão */
+    [-1, 1].forEach(function (lado) {
+      const cordao = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.3, 12), solido(0xE8E8E8, 0.85));
+      cordao.position.set(lado * 0.11, 0.13, 0.53);
+      cordao.rotation.x = -0.12;
+      cordao.rotation.z = lado * 0.1;
+      grupo.add(cordao);
+    });
+  }
+
+  function montarMeiaEChuteira(grupo) {
+    const matMeia = tecido(texturaMeia(), 0.92);
+
+    [-1, 1].forEach(function (lado) {
+      const meia = casca([
+        { y: -1.24, rx: 0.30, rz: 0.29 },
+        { y: -1.44, rx: 0.305, rz: 0.295 },
+        { y: -1.66, rx: 0.285, rz: 0.28 },   // panturrilha
+        { y: -1.94, rx: 0.225, rz: 0.225 },
+        { y: -2.18, rx: 0.175, rz: 0.18 },   // tornozelo
+        { y: -2.34, rx: 0.165, rz: 0.175 }
+      ], matMeia, { aneis: 54, voltas: 64, expoente: 2.15 });
+      meia.position.x = lado * 0.47;
+      meia.rotation.z = lado * 0.02;
+      grupo.add(meia);
+
+      grupo.add(chuteira(lado));
+    });
+  }
+
+  function chuteira(lado) {
+    const g = new THREE.Group();
+    const forma = new THREE.Shape();
+    forma.moveTo(-0.26, 0.02);
+    forma.lineTo(0.30, 0.0);
+    forma.quadraticCurveTo(0.46, 0.0, 0.47, 0.07);
+    forma.quadraticCurveTo(0.47, 0.14, 0.32, 0.16);
+    forma.quadraticCurveTo(0.10, 0.19, -0.02, 0.27);
+    forma.quadraticCurveTo(-0.10, 0.34, -0.19, 0.34);
+    forma.quadraticCurveTo(-0.29, 0.33, -0.30, 0.22);
+    forma.quadraticCurveTo(-0.31, 0.08, -0.26, 0.02);
+
+    const geo = new THREE.ExtrudeGeometry(forma, {
+      depth: 0.24, bevelEnabled: true, bevelSize: 0.05, bevelThickness: 0.045, bevelSegments: 6, curveSegments: 24
+    });
+    geo.translate(0, 0, -0.12);
+    const couro = new THREE.MeshStandardMaterial({ color: 0x14171A, roughness: 0.42, metalness: 0.12 });
+    const pe = new THREE.Mesh(geo, couro);
+    pe.rotation.y = -Math.PI / 2;
+    pe.castShadow = true;
+    g.add(pe);
+
+    const sola = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.05, 0.82), solido(0x08090B, 0.55));
+    sola.position.set(0, -0.035, 0.09);
+    sola.castShadow = true;
+    g.add(sola);
+
+    const risco = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.028, 0.3), solido(0xD6202B, 0.45));
+    risco.position.set(0, 0.055, 0.2);
+    g.add(risco);
+
+    for (let i = 0; i < 5; i++) {
+      const trava = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.028, 0.05, 10), solido(0x0A0B0D, 0.6));
+      trava.position.set((i % 2 ? 0.1 : -0.1), -0.075, -0.2 + i * 0.14);
+      g.add(trava);
+    }
+
+    g.position.set(lado * 0.47, -2.42, 0.06);
+    g.rotation.y = lado * 0.06;
+    return g;
   }
 
   function montarKit() {
     const grupo = new THREE.Group();
-    const matCamisa = material(texturaCamisa());
-    const matCalcao = material(texturaCalcao());
-    const matManga = material(texturaManga());
-    const matVermelho = corSimples(0xD9202C, 0.72);
-    const matEscuro = corSimples(0x16181B, 0.65);
-
-    /* camisa */
-    const tronco = cilindro(0.95, 1.06, 1.72, matCamisa, 0.6);
-    tronco.position.y = 0.86;
-    grupo.add(tronco);
-
-    const tampaOmbro = new THREE.Mesh(
-      new THREE.SphereGeometry(0.95, 48, 20, 0, Math.PI * 2, 0, Math.PI / 2),
-      corSimples(0x4A5058, 0.85)
-    );
-    tampaOmbro.scale.set(1, 0.34, 0.6);
-    tampaOmbro.position.y = 1.72;
-    grupo.add(tampaOmbro);
-
-    const gola = new THREE.Mesh(new THREE.TorusGeometry(0.33, 0.062, 16, 48), matVermelho);
-    gola.rotation.x = Math.PI / 2;
-    gola.scale.z = 1;
-    gola.position.set(0, 1.83, 0.02);
-    grupo.add(gola);
-
-    const buracoGola = new THREE.Mesh(new THREE.CircleGeometry(0.33, 40), corSimples(0x0E1013, 1));
-    buracoGola.rotation.x = -Math.PI / 2;
-    buracoGola.position.set(0, 1.82, 0.02);
-    grupo.add(buracoGola);
-
-    const barra = new THREE.Mesh(new THREE.TorusGeometry(1.05, 0.03, 12, 60), corSimples(0x2A2E33, 0.9));
-    barra.rotation.x = Math.PI / 2;
-    barra.scale.z = 0.6;
-    barra.position.y = 0.02;
-    grupo.add(barra);
-
-    [-1, 1].forEach(function (lado) {
-      const ombro = new THREE.Mesh(new THREE.SphereGeometry(0.3, 32, 24), corSimples(0x4A5058, 0.85));
-      ombro.position.set(lado * 0.9, 1.56, 0);
-      ombro.scale.z = 0.8;
-      grupo.add(ombro);
-
-      const manga = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.28, 0.66, 40, 1, true), matManga);
-      manga.position.set(lado * 1.1, 1.2, 0);
-      manga.rotation.z = lado * 0.24;
-      manga.scale.z = 0.86;
-      grupo.add(manga);
-
-      const punho = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.035, 12, 32), matVermelho);
-      punho.position.set(lado * 1.19, 0.88, 0);
-      punho.rotation.x = Math.PI / 2;
-      punho.rotation.y = lado * 0.24;
-      punho.scale.z = 0.86;
-      grupo.add(punho);
-    });
-
-    /* calção */
-    const quadril = cilindro(1.0, 0.98, 0.62, matCalcao, 0.6);
-    quadril.position.y = -0.25;
-    grupo.add(quadril);
-
-    const cos = new THREE.Mesh(new THREE.TorusGeometry(1.0, 0.045, 12, 60), matEscuro);
-    cos.rotation.x = Math.PI / 2;
-    cos.scale.z = 0.6;
-    cos.position.y = 0.06;
-    grupo.add(cos);
-
-    [-1, 1].forEach(function (lado) {
-      const perna = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.47, 0.8, 40, 1, true), matCalcao);
-      perna.position.set(lado * 0.46, -0.94, 0);
-      perna.scale.z = 0.78;
-      grupo.add(perna);
-
-      /* meião */
-      const meia = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.2, 1.05, 32, 1, true), matVermelho);
-      meia.position.set(lado * 0.46, -1.86, 0);
-      grupo.add(meia);
-
-      const punhoMeia = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.31, 0.2, 32), matVermelho);
-      punhoMeia.position.set(lado * 0.46, -1.4, 0);
-      grupo.add(punhoMeia);
-
-      /* chuteira */
-      const pe = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.2, 0.74), matEscuro);
-      pe.position.set(lado * 0.46, -2.44, 0.13);
-      grupo.add(pe);
-
-      const solado = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.06, 0.8), corSimples(0x0A0B0D, 0.6));
-      solado.position.set(lado * 0.46, -2.55, 0.13);
-      grupo.add(solado);
-
-      const risco = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.035, 0.3), corSimples(0xD9202C, 0.5));
-      risco.position.set(lado * 0.46, -2.4, 0.2);
-      grupo.add(risco);
-    });
-
+    montarCamisa(grupo);
+    montarCalcao(grupo);
+    montarMeiaEChuteira(grupo);
     return grupo;
   }
 
-  /* ------------------------------ cena ------------------------------ */
+  /* =============================== cena =============================== */
 
   function iniciar(elemento) {
     if (typeof THREE === 'undefined') {
@@ -583,30 +799,57 @@ const Uniforme3D = (function () {
     palco.innerHTML = '';
 
     cena = new THREE.Scene();
-    cena.background = null;
 
-    camera = new THREE.PerspectiveCamera(38, palco.clientWidth / palco.clientHeight, 0.1, 100);
+    camera = new THREE.PerspectiveCamera(34, palco.clientWidth / palco.clientHeight, 0.1, 100);
     camera.position.set(0, 0, distancia);
 
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(palco.clientWidth, palco.clientHeight);
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.08;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     palco.appendChild(renderer.domElement);
 
-    cena.add(new THREE.HemisphereLight(0xdfe7f0, 0x1a1c20, 0.85));
-    const luz = new THREE.DirectionalLight(0xffffff, 0.95);
-    luz.position.set(3, 5, 6);
-    cena.add(luz);
-    const contraLuz = new THREE.DirectionalLight(0xff5a63, 0.35);
-    contraLuz.position.set(-5, 2, -4);
-    cena.add(contraLuz);
-    const baixo = new THREE.DirectionalLight(0xffffff, 0.22);
-    baixo.position.set(0, -4, 2);
-    cena.add(baixo);
+    cena.add(new THREE.HemisphereLight(0xdce6f2, 0x14161a, 0.62));
 
+    const principal = new THREE.DirectionalLight(0xffffff, 1.5);
+    principal.position.set(3.4, 6, 5.5);
+    principal.castShadow = true;
+    principal.shadow.mapSize.set(1024, 1024);
+    principal.shadow.camera.near = 1;
+    principal.shadow.camera.far = 22;
+    principal.shadow.camera.left = -4;
+    principal.shadow.camera.right = 4;
+    principal.shadow.camera.top = 5;
+    principal.shadow.camera.bottom = -5;
+    principal.shadow.bias = -0.0012;
+    cena.add(principal);
+
+    const preenchimento = new THREE.DirectionalLight(0xbcd2ea, 0.5);
+    preenchimento.position.set(-5, 1.5, 3.5);
+    cena.add(preenchimento);
+
+    const contorno = new THREE.DirectionalLight(0xff6a70, 0.75);
+    contorno.position.set(-3.5, 3, -5);
+    cena.add(contorno);
+
+    const rebote = new THREE.DirectionalLight(0xffffff, 0.22);
+    rebote.position.set(0, -4, 2.5);
+    cena.add(rebote);
+
+    relevo = texturaRelevo();
     kit = montarKit();
-    kit.position.y = 0.28;
+    kit.position.y = 0.24;
     cena.add(kit);
+
+    const chao = new THREE.Mesh(new THREE.PlaneGeometry(16, 16), new THREE.ShadowMaterial({ opacity: 0.42 }));
+    chao.rotation.x = -Math.PI / 2;
+    chao.position.y = -2.26;
+    chao.receiveShadow = true;
+    cena.add(chao);
 
     ligarControles();
     window.addEventListener('resize', redimensionar);
@@ -626,46 +869,45 @@ const Uniforme3D = (function () {
     let arrastando = false, ultimoX = 0, ultimoY = 0;
 
     function inicio(x, y) { arrastando = true; ultimoX = x; ultimoY = y; palco.classList.add('arrastando'); }
-    function move(x, y) {
+    function mover(x, y) {
       if (!arrastando) return;
       alvoY += (x - ultimoX) * 0.0095;
-      alvoX += (y - ultimoY) * 0.006;
-      alvoX = Math.max(-0.55, Math.min(0.55, alvoX));
+      alvoX += (y - ultimoY) * 0.005;
+      alvoX = Math.max(-0.42, Math.min(0.42, alvoX));
       ultimoX = x; ultimoY = y;
     }
     function fim() { arrastando = false; palco.classList.remove('arrastando'); }
 
     palco.addEventListener('mousedown', function (e) { inicio(e.clientX, e.clientY); });
-    window.addEventListener('mousemove', function (e) { move(e.clientX, e.clientY); });
+    window.addEventListener('mousemove', function (e) { mover(e.clientX, e.clientY); });
     window.addEventListener('mouseup', fim);
     palco.addEventListener('touchstart', function (e) { inicio(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
-    palco.addEventListener('touchmove', function (e) { move(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); }, { passive: false });
+    palco.addEventListener('touchmove', function (e) { mover(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); }, { passive: false });
     palco.addEventListener('touchend', fim);
     palco.addEventListener('wheel', function (e) {
       e.preventDefault();
-      alvoDist = Math.max(3.6, Math.min(8.5, alvoDist + e.deltaY * 0.0035));
+      alvoDist = Math.max(4.2, Math.min(9.5, alvoDist + e.deltaY * 0.0035));
     }, { passive: false });
   }
 
   function laco() {
     if (!animando) return;
     requestAnimationFrame(laco);
-    girY += (alvoY - girY) * 0.12;
-    girX += (alvoX - girX) * 0.12;
-    distancia += (alvoDist - distancia) * 0.1;
+    girY += (alvoY - girY) * 0.11;
+    girX += (alvoX - girX) * 0.11;
+    distancia += (alvoDist - distancia) * 0.09;
     if (kit) { kit.rotation.y = girY; kit.rotation.x = girX; }
     camera.position.z = distancia;
     renderer.render(cena, camera);
   }
 
-  function normalizarVolta(destino) {
-    const voltas = Math.round((alvoY - destino) / (Math.PI * 2));
-    return destino + voltas * Math.PI * 2;
+  function voltaMaisCurta(destino) {
+    return destino + Math.round((alvoY - destino) / (Math.PI * 2)) * Math.PI * 2;
   }
 
-  function verFrente() { alvoY = normalizarVolta(0); alvoX = 0; }
-  function verCostas() { alvoY = normalizarVolta(Math.PI); alvoX = 0; }
-  function verLado() { alvoY = normalizarVolta(Math.PI / 2); alvoX = 0; }
+  function verFrente() { alvoY = voltaMaisCurta(0); alvoX = 0.02; }
+  function verCostas() { alvoY = voltaMaisCurta(Math.PI); alvoX = 0.02; }
+  function verLado() { alvoY = voltaMaisCurta(Math.PI / 2); alvoX = 0.02; }
 
   function destruir() {
     animando = false;
