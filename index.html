@@ -1116,9 +1116,12 @@ function cartaoSuporte() {
   const s = (estado.publico && estado.publico.suporte) || (estado.config && estado.config.suporte);
   if (!s) return '';
   const zap = 'https://wa.me/55' + s.fone.replace(/\D/g, '');
-  return '<div class="suporte"><div><b>Deu algum problema?</b>' +
+  const estreita = ['entrar', 'cadastrar', 'senha'].indexOf(estado.tela) !== -1;
+  const abre = estreita ? '<div class="centro">' : '';
+  const fecha = estreita ? '</div>' : '';
+  return abre + '<div class="suporte"><div><b>Deu algum problema?</b>' +
     '<p>Fale com ' + escapar(s.nome) + ' pelo WhatsApp ' + escapar(s.fone) + ' e resolvemos junto com você.</p></div>' +
-    '<a href="' + zap + '" target="_blank" rel="noopener"><button class="pequeno">Chamar no WhatsApp</button></a></div>';
+    '<a href="' + zap + '" target="_blank" rel="noopener"><button class="pequeno">Chamar no WhatsApp</button></a></div>' + fecha;
 }
 
 /* ------------------------------ entrar/cadastro ------------------------------ */
@@ -1309,7 +1312,10 @@ function cancelarPedido(id) {
 /* ------------------------------ fluxo de pedido ------------------------------ */
 
 function novaSolicitacao() {
-  estado.rascunho = { etapa: 1, para: null, itens: [], pedido: null, qrAberto: false, arquivo: null, pix: null };
+  estado.rascunho = {
+    etapa: 1, pedido: null, qrAberto: false, arquivo: null, pix: null,
+    itens: [{ para: 'eu', nomeUso: '', tamanho: '', quantidade: 1 }]
+  };
   desenhar('solicitar');
 }
 
@@ -1317,7 +1323,6 @@ function retomarPedido(id) {
   const p = estado.pedidos.filter(function (x) { return x.id === id; })[0];
   estado.rascunho = {
     etapa: 2,
-    para: p.itens.length && p.itens[0].para === 'filho' ? 'filho' : 'eu',
     itens: p.itens.map(function (i) {
       return { para: i.para, nomeUso: i.nomeUso, tamanho: i.tamanho, quantidade: i.quantidade };
     }),
@@ -1358,16 +1363,11 @@ function etapaUniforme() {
     '</div>' +
     '<small style="display:block;margin-top:8px">Arraste com o mouse para girar. Use a rolagem para aproximar.</small></div>';
 
-  html += '<div class="cartao destaque"><h2>Para quem é o uniforme?</h2>' +
-    '<p class="sub">Você pode pedir para você, para os filhos ou para os dois no mesmo pedido.</p>' +
-    '<div class="opcoes" style="margin-bottom:18px">' +
-    '<button class="' + (r.para === 'eu' ? 'marcada' : '') + '" onclick="escolherPara(\'eu\')">É para mim</button>' +
-    '<button class="' + (r.para === 'filho' ? 'marcada' : '') + '" onclick="escolherPara(\'filho\')">É para meu filho(a)</button>' +
-    '</div>';
+  html += '<div class="cartao destaque"><h2>Escolha os uniformes</h2>' +
+    '<p class="sub">Dá para pedir para você, para os filhos ou para os dois no mesmo pedido.</p>';
 
-  if (r.para) {
-    html += '<div id="itens">';
-    r.itens.forEach(function (item, idx) {
+  html += '<div id="itens">';
+  r.itens.forEach(function (item, idx) {
       html += '<div class="item"><div class="topo-item"><b>Uniforme ' + (idx + 1) + '</b>' +
         (r.itens.length > 1 ? '<button class="texto" onclick="removerItem(' + idx + ')">Remover</button>' : '') +
         '</div>';
@@ -1407,7 +1407,6 @@ function etapaUniforme() {
     html += '<div class="acoes" style="margin-top:16px">' +
       '<button onclick="irParaPagamento(this)">Ir para o pagamento</button>' +
       '<button class="secundario" onclick="irPara(\'inicio\')">Voltar</button></div>';
-  }
 
   html += '</div></div>';
   return html;
@@ -1420,16 +1419,9 @@ function montarVisor() {
   estado.visor = Uniforme3D.iniciar(palco);
 }
 
-function escolherPara(quem) {
-  const r = estado.rascunho;
-  r.para = quem;
-  if (!r.itens.length) r.itens = [{ para: quem, nomeUso: '', tamanho: '', quantidade: 1 }];
-  else r.itens.forEach(function (i) { i.para = quem; if (quem === 'eu') i.nomeUso = ''; });
-  desenhar();
-}
-
 function adicionarItem() {
-  estado.rascunho.itens.push({ para: estado.rascunho.para, nomeUso: '', tamanho: '', quantidade: 1 });
+  const ultimo = estado.rascunho.itens[estado.rascunho.itens.length - 1];
+  estado.rascunho.itens.push({ para: ultimo ? ultimo.para : 'eu', nomeUso: '', tamanho: '', quantidade: 1 });
   desenhar();
 }
 
