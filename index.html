@@ -154,7 +154,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
   display:block;background:#F3F4F6;border:1px solid var(--linha);
   border-radius:var(--raio);padding:10px;line-height:0;
 }
-.mostruario img{width:100%;height:auto;display:block;border-radius:6px}
+.mostruario img{width:100%;height:auto;display:block;border-radius:6px;aspect-ratio:1024/1536;object-fit:contain}
 
 /* ------------------------------ itens ------------------------------ */
 .item{
@@ -677,8 +677,9 @@ function etapaUniforme() {
   const precos = estado.config.precos;
 
   let html = '<div class="grade duas" style="align-items:start">' +
-    '<div><a class="mostruario" href="' + IMAGEM_UNIFORME + '" target="_blank" rel="noopener">' +
-    '<img src="' + IMAGEM_UNIFORME + '" alt="Uniforme Cidade Sports: camisa grafite, calção e meião vermelhos"></a>' +
+    '<div><a class="mostruario" id="mostruario" href="' + IMAGEM_UNIFORME + '" target="_blank" rel="noopener">' +
+    '<img src="' + IMAGEM_UNIFORME + '" onerror="arteFalhou()" ' +
+    'alt="Uniforme Cidade Sports: camisa grafite, calção e meião vermelhos"></a>' +
     '<small style="display:block;margin-top:8px">Toque na arte para abrir em tamanho maior.</small></div>';
 
   html += '<div class="cartao destaque"><h2>Escolha os uniformes</h2>' +
@@ -728,6 +729,16 @@ function etapaUniforme() {
 
   html += '</div></div>';
   return html;
+}
+
+/* Se a arte não estiver ao lado do index.html, avisa em vez de mostrar ícone quebrado. */
+function arteFalhou() {
+  const caixa = el('mostruario');
+  if (!caixa) return;
+  caixa.outerHTML = '<div class="cartao" style="text-align:center;padding:34px 22px">' +
+    '<h3>Arte do uniforme indisponível</h3>' +
+    '<p class="sub" style="margin-top:6px">O arquivo <b>' + escapar(IMAGEM_UNIFORME) + '</b> não foi encontrado. ' +
+    'Ele precisa estar na mesma pasta da página. Você pode seguir com o pedido normalmente.</p></div>';
 }
 
 function adicionarItem() {
