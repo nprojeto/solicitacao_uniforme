@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1B1E22">
+<title>Cidade Sports — Uniformes</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root{
+  --grafite-900:#1B1E22;
+  --grafite-800:#23272C;
+  --grafite-700:#2E333A;
+  --grafite-600:#3B4149;
+  --linha:#454C55;
+  --texto:#EEF1F4;
+  --texto-fraco:#9AA3AE;
+  --vermelho:#D9202C;
+  --vermelho-claro:#F0353F;
+  --verde:#38A169;
+  --ambar:#E0A426;
+  --raio:10px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--grafite-900);
+  color:var(--texto);
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:15px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+  background:
+    repeating-linear-gradient(118deg, transparent 0 44px, rgba(255,255,255,.018) 44px 58px, transparent 58px 96px),
+    radial-gradient(1000px 520px at 78% -12%, rgba(217,32,44,.16), transparent 62%);
+}
+#app{position:relative;z-index:1}
+
+h1,h2,h3,.display{font-family:'Barlow Condensed','Inter',sans-serif;font-weight:700;letter-spacing:.2px;line-height:1.1}
+h1{font-size:30px}
+h2{font-size:23px}
+h3{font-size:18px}
+a{color:var(--vermelho-claro)}
+small{font-size:12.5px;color:var(--texto-fraco)}
+
+/* ------------------------------ layout ------------------------------ */
+.topo{
+  position:sticky;top:0;z-index:40;
+  display:flex;align-items:center;gap:14px;
+  padding:12px 20px;
+  background:rgba(27,30,34,.92);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--linha);
+}
+.marca{display:flex;align-items:baseline;gap:8px;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700}
+.marca span{font-size:11px;letter-spacing:3.5px;color:var(--texto-fraco);font-family:'Inter',sans-serif;font-weight:600}
+.topo .espaco{flex:1}
+.quem{text-align:right;line-height:1.25}
+.quem b{display:block;font-size:14px}
+.quem small{font-size:11.5px}
+
+main{max-width:1080px;margin:0 auto;padding:26px 20px 90px}
+.centro{max-width:460px;margin:0 auto}
+.grade{display:grid;gap:18px}
+.grade.duas{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+
+/* ------------------------------ cartões ------------------------------ */
+.cartao{
+  background:var(--grafite-800);
+  border:1px solid var(--linha);
+  border-radius:var(--raio);
+  padding:22px;
+}
+.cartao.destaque{border-left:4px solid var(--vermelho)}
+.cartao h2,.cartao h3{margin-bottom:4px}
+.cartao > p.sub{color:var(--texto-fraco);margin-bottom:18px;font-size:14px}
+
+.suporte{
+  background:linear-gradient(180deg,var(--grafite-800),var(--grafite-700));
+  border:1px solid var(--linha);border-left:4px solid var(--vermelho);
+  border-radius:var(--raio);padding:16px 18px;margin-top:26px;
+  display:flex;gap:14px;align-items:center;flex-wrap:wrap;
+}
+.suporte div{flex:1;min-width:200px}
+.suporte b{display:block;font-size:15px}
+.suporte p{color:var(--texto-fraco);font-size:13.5px}
+
+/* ---------------------------- formulários ---------------------------- */
+label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--texto)}
+.campo{margin-bottom:16px}
+input,select,textarea{
+  width:100%;padding:11px 13px;
+  background:var(--grafite-700);color:var(--texto);
+  border:1px solid var(--linha);border-radius:8px;
+  font-family:inherit;font-size:15px;
+}
+input:focus,select:focus,textarea:focus,button:focus-visible{
+  outline:2px solid var(--vermelho-claro);outline-offset:1px;border-color:transparent
+}
+input::placeholder{color:#6E7883}
+textarea{resize:vertical;min-height:80px}
+input[type=number]{max-width:96px}
+input[type=file]{padding:9px;background:var(--grafite-700)}
+
+button{
+  font-family:'Inter',sans-serif;font-size:14.5px;font-weight:600;
+  padding:11px 20px;border-radius:8px;border:1px solid transparent;
+  background:var(--vermelho);color:#fff;cursor:pointer;transition:background .15s ease;
+}
+button:hover{background:var(--vermelho-claro)}
+button.secundario{background:transparent;border-color:var(--linha);color:var(--texto)}
+button.secundario:hover{background:var(--grafite-700)}
+button.texto{background:none;border:none;color:var(--texto-fraco);padding:6px 4px;text-decoration:underline}
+button.texto:hover{color:var(--texto);background:none}
+button.pequeno{padding:7px 13px;font-size:13px}
+button:disabled{opacity:.45;cursor:not-allowed}
+.acoes{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.acoes.fim{justify-content:flex-end}
+
+/* ------------------------------ avisos ------------------------------ */
+.aviso{border-radius:8px;padding:11px 14px;font-size:14px;margin-bottom:16px;border:1px solid}
+.aviso.erro{background:rgba(217,32,44,.12);border-color:rgba(217,32,44,.5)}
+.aviso.ok{background:rgba(56,161,105,.12);border-color:rgba(56,161,105,.5)}
+.aviso.atencao{background:rgba(224,164,38,.12);border-color:rgba(224,164,38,.5)}
+
+.selo{
+  display:inline-block;padding:4px 10px;border-radius:99px;
+  font-size:11.5px;font-weight:600;border:1px solid;white-space:nowrap;
+}
+.selo.cinza{color:var(--texto-fraco);border-color:var(--linha);background:var(--grafite-700)}
+.selo.ambar{color:#F0C06A;border-color:rgba(224,164,38,.5);background:rgba(224,164,38,.12)}
+.selo.vermelho{color:#FF8F97;border-color:rgba(217,32,44,.5);background:rgba(217,32,44,.12)}
+.selo.verde{color:#79D3A3;border-color:rgba(56,161,105,.5);background:rgba(56,161,105,.14)}
+.selo.azul{color:#8FC4F5;border-color:rgba(66,153,225,.5);background:rgba(66,153,225,.12)}
+
+/* ------------------------------ etapas ------------------------------ */
+.etapas{display:flex;gap:6px;margin-bottom:22px;flex-wrap:wrap}
+.etapas div{
+  flex:1;min-width:110px;padding:9px 12px;border-radius:8px;font-size:13px;
+  background:var(--grafite-800);border:1px solid var(--linha);color:var(--texto-fraco);
+}
+.etapas div b{font-family:'Barlow Condensed',sans-serif;font-size:16px;margin-right:7px;color:var(--linha)}
+.etapas div.ativa{border-color:var(--vermelho);color:var(--texto);background:var(--grafite-700)}
+.etapas div.ativa b{color:var(--vermelho-claro)}
+.etapas div.feita b{color:var(--verde)}
+
+/* ------------------------------- 3D -------------------------------- */
+.palco{
+  position:relative;background:linear-gradient(180deg,#31363D,#1E2126);
+  border:1px solid var(--linha);border-radius:var(--raio);overflow:hidden;
+  height:420px;touch-action:none;cursor:grab;
+}
+.palco.arrastando{cursor:grabbing}
+.palco canvas{display:block;width:100%;height:100%}
+.palco .dica{
+  position:absolute;left:14px;bottom:12px;font-size:12px;color:#C3C9D1;
+  background:rgba(0,0,0,.42);padding:5px 10px;border-radius:99px;pointer-events:none;
+}
+.palco .vistas{position:absolute;right:12px;top:12px;display:flex;gap:6px}
+.palco .vistas button{padding:6px 11px;font-size:12px;background:rgba(0,0,0,.42);border:1px solid rgba(255,255,255,.18)}
+.palco .vistas button:hover{background:rgba(217,32,44,.75)}
+
+/* ------------------------------ itens ------------------------------ */
+.item{
+  border:1px solid var(--linha);border-radius:9px;padding:15px;
+  background:var(--grafite-700);margin-bottom:12px;
+}
+.item .linha{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.item .linha > div{flex:1;min-width:132px;margin:0}
+.item .topo-item{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.item .topo-item b{font-family:'Barlow Condensed',sans-serif;font-size:17px}
+
+.opcoes{display:flex;gap:8px;flex-wrap:wrap}
+.opcoes button{
+  background:var(--grafite-800);border:1px solid var(--linha);color:var(--texto);
+  font-weight:500;padding:9px 15px;
+}
+.opcoes button.marcada{border-color:var(--vermelho);background:rgba(217,32,44,.16);font-weight:600}
+
+.total{
+  display:flex;justify-content:space-between;align-items:baseline;
+  border-top:1px solid var(--linha);margin-top:16px;padding-top:14px;
+}
+.total b{font-family:'Barlow Condensed',sans-serif;font-size:29px}
+
+/* ------------------------------- pix -------------------------------- */
+.pix{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+.pix .qr{background:#fff;padding:12px;border-radius:9px;line-height:0}
+.pix .qr img{width:190px;height:190px;display:block}
+.pix .lado{flex:1;min-width:230px}
+.chave{
+  display:block;background:var(--grafite-700);border:1px dashed var(--linha);
+  border-radius:8px;padding:12px;font-size:14px;word-break:break-all;margin:8px 0 14px;
+}
+
+/* ------------------------------ pedidos ------------------------------ */
+.pedido{border:1px solid var(--linha);border-radius:var(--raio);background:var(--grafite-800);margin-bottom:14px;overflow:hidden}
+.pedido .cab{display:flex;gap:12px;align-items:center;padding:15px 18px;flex-wrap:wrap}
+.pedido .cab .id{font-family:'Barlow Condensed',sans-serif;font-size:18px}
+.pedido .cab .espaco{flex:1}
+.pedido .corpo{padding:0 18px 18px;border-top:1px solid var(--linha);padding-top:14px}
+.pedido ul{list-style:none;font-size:14px}
+.pedido ul li{padding:5px 0;border-bottom:1px dashed rgba(255,255,255,.07);display:flex;justify-content:space-between;gap:10px}
+.linha-tempo{margin-top:14px;font-size:12.5px;color:var(--texto-fraco)}
+.linha-tempo div{padding:3px 0 3px 14px;border-left:2px solid var(--linha)}
+
+.filtros{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.filtros button{background:var(--grafite-800);border:1px solid var(--linha);color:var(--texto-fraco);font-weight:500;padding:8px 14px;font-size:13.5px}
+.filtros button.marcada{border-color:var(--vermelho);color:var(--texto);background:rgba(217,32,44,.14)}
+
+.tabela{width:100%;border-collapse:collapse;font-size:14px}
+.tabela th,.tabela td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--linha)}
+.tabela th{font-size:12px;color:var(--texto-fraco);font-weight:600}
+.tabela tr:last-child td{border-bottom:none}
+.rolagem{overflow-x:auto}
+
+.abas{display:flex;gap:4px;border-bottom:1px solid var(--linha);margin-bottom:22px}
+.abas button{background:none;border:none;border-bottom:2px solid transparent;border-radius:0;color:var(--texto-fraco);padding:11px 16px}
+.abas button:hover{background:none;color:var(--texto)}
+.abas button.marcada{color:var(--texto);border-bottom-color:var(--vermelho)}
+
+.numeros{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px}
+.numeros div{background:var(--grafite-800);border:1px solid var(--linha);border-radius:9px;padding:14px}
+.numeros b{display:block;font-family:'Barlow Condensed',sans-serif;font-size:28px;line-height:1}
+.numeros span{font-size:12.5px;color:var(--texto-fraco)}
+
+/* ------------------------------ modal ------------------------------- */
+.cortina{
+  position:fixed;inset:0;background:rgba(10,12,14,.72);z-index:60;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.modal{background:var(--grafite-800);border:1px solid var(--linha);border-radius:var(--raio);padding:24px;max-width:440px;width:100%}
+
+.carregando{text-align:center;padding:60px 20px;color:var(--texto-fraco)}
+
+@media (max-width:640px){
+  main{padding:18px 14px 70px}
+  .palco{height:340px}
+  .topo{padding:10px 14px}
+  h1{font-size:25px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+</head>
+<body>
+<div id="app"><div class="carregando">Carregando o sistema…</div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* =====================================================================
+   Visualizador 3D do uniforme — Cidade Sports
+   Camisa grafite com faixas diagonais, painéis vermelhos, calção
+   vermelho com listra cinza, meião vermelho e chuteira preta.
+   ===================================================================== */
+const Uniforme3D = (function () {
+
+  const CINZA_CLARO = '#565C64';
+  const CINZA = '#454A51';
+  const CINZA_ESCURO = '#33383E';
+  const VERMELHO = '#D9202C';
+  const VERMELHO_ESC = '#A9161F';
+
+  let cena, camera, renderer, kit, animando = false, palco;
+  let alvoY = 0, alvoX = 0, girY = 0, girX = 0, distancia = 5.6, alvoDist = 5.6;
+
+  /* ------------------------- texturas em canvas ------------------------- */
+
+  function tela(l, a) {
+    const c = document.createElement('canvas');
+    c.width = l; c.height = a;
+    return { c: c, ctx: c.getContext('2d') };
+  }
+
+  function fundoTecido(ctx, L, A) {
+    const g = ctx.createLinearGradient(0, 0, 0, A);
+    g.addColorStop(0, CINZA_CLARO);
+    g.addColorStop(0.55, CINZA);
+    g.addColorStop(1, CINZA_ESCURO);
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, L, A);
+
+    // faixas diagonais tipo pincel, como na arte de referência
+    ctx.save();
+    ctx.translate(L / 2, A / 2);
+    ctx.rotate(-0.42);
+    ctx.translate(-L, -A);
+    for (let i = 0; i < 90; i++) {
+      const x = Math.random() * L * 3;
+      const y = Math.random() * A * 3;
+      const larg = 6 + Math.random() * 26;
+      const alt = 40 + Math.random() * 190;
+      ctx.fillStyle = 'rgba(0,0,0,' + (0.05 + Math.random() * 0.14).toFixed(3) + ')';
+      ctx.fillRect(x, y, larg, alt);
+      if (Math.random() > 0.7) {
+        ctx.fillStyle = 'rgba(255,255,255,0.035)';
+        ctx.fillRect(x + larg + 3, y + 10, larg * 0.5, alt * 0.8);
+      }
+    }
+    ctx.restore();
+  }
+
+  function painelVermelho(ctx, cx, L, A) {
+    // painel lateral com borda mais escura, desenhado com repetição na emenda
+    [-L, 0, L].forEach(function (deslocamento) {
+      const x = cx + deslocamento;
+      const g = ctx.createLinearGradient(x - 46, 0, x + 46, 0);
+      g.addColorStop(0, VERMELHO_ESC);
+      g.addColorStop(0.5, VERMELHO);
+      g.addColorStop(1, VERMELHO_ESC);
+      ctx.fillStyle = g;
+      ctx.fillRect(x - 46, A * 0.12, 92, A);
+    });
+  }
+
+  function chama(ctx, x, y, tam, cor) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(tam, tam);
+    ctx.fillStyle = cor;
+    ctx.beginPath();
+    ctx.moveTo(0, -1);
+    ctx.bezierCurveTo(0.62, -0.28, 0.58, 0.42, 0, 1);
+    ctx.bezierCurveTo(-0.58, 0.42, -0.62, -0.28, 0, -1);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function escudo(ctx, x, y, r) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.fillStyle = VERMELHO;
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,.25)';
+    ctx.lineWidth = r * 0.06;
+    ctx.stroke();
+
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = r * 0.1;
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const a = (Math.PI / 3) * i - Math.PI / 2;
+      const px = Math.cos(a) * r * 0.62, py = Math.sin(a) * r * 0.62;
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.stroke();
+
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold ' + (r * 0.75) + 'px Georgia, serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('i', 0, r * 0.04);
+    ctx.restore();
+  }
+
+  function texturaCamisa() {
+    const L = 1600, A = 900;
+    const t = tela(L, A), ctx = t.ctx;
+    fundoTecido(ctx, L, A);
+
+    // emenda lateral em x=0/L (esquerda) e x=L/2 (direita)
+    painelVermelho(ctx, 0, L, A);
+    painelVermelho(ctx, L / 2, L, A);
+
+    // barra inferior
+    ctx.fillStyle = 'rgba(0,0,0,.28)';
+    ctx.fillRect(0, A - 16, L, 16);
+
+    // FRENTE — centro em x = L/4
+    const fx = L / 4;
+    chama(ctx, fx - 118, 232, 40, '#FFFFFF');
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '600 40px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.letterSpacing && (ctx.letterSpacing = '6px');
+    ctx.fillText('UNITY', fx - 118, 322);
+    escudo(ctx, fx + 122, 258, 68);
+
+    // COSTAS — centro em x = 3L/4
+    const bx = (L * 3) / 4;
+    ctx.fillStyle = '#FFFFFF';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+    ctx.letterSpacing && (ctx.letterSpacing = '0px');
+    ctx.font = '600 92px Georgia, serif';
+    ctx.fillText('Cidade', bx + 14, 268);
+    ctx.lineWidth = 9;
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.arc(bx - 168, 236, 40, Math.PI * 0.62, Math.PI * 1.38);
+    ctx.stroke();
+    ctx.font = '600 34px Inter, Arial, sans-serif';
+    ctx.letterSpacing && (ctx.letterSpacing = '14px');
+    ctx.fillText('SPORTS', bx + 26, 320);
+    ctx.letterSpacing && (ctx.letterSpacing = '0px');
+
+    const tex = new THREE.CanvasTexture(t.c);
+    tex.anisotropy = 8;
+    return tex;
+  }
+
+  function texturaCalcao() {
+    const L = 1200, A = 600;
+    const t = tela(L, A), ctx = t.ctx;
+    const g = ctx.createLinearGradient(0, 0, 0, A);
+    g.addColorStop(0, '#E4242F');
+    g.addColorStop(1, '#B01A23');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, L, A);
+
+    // listra cinza nas laterais (x=0/L e x=L/2)
+    [0, L / 2, L].forEach(function (cx) {
+      ctx.fillStyle = CINZA;
+      ctx.fillRect(cx - 26, 0, 52, A);
+      ctx.fillStyle = 'rgba(0,0,0,.22)';
+      ctx.fillRect(cx - 30, 0, 5, A);
+      ctx.fillRect(cx + 25, 0, 5, A);
+    });
+
+    // cós escuro
+    ctx.fillStyle = '#1D2024';
+    ctx.fillRect(0, 0, L, 34);
+
+    escudo(ctx, L / 4 + 150, A * 0.68, 42);
+
+    const tex = new THREE.CanvasTexture(t.c);
+    tex.anisotropy = 8;
+    return tex;
+  }
+
+  function texturaManga() {
+    const L = 512, A = 512;
+    const t = tela(L, A), ctx = t.ctx;
+    fundoTecido(ctx, L, A);
+    ctx.fillStyle = VERMELHO;
+    ctx.fillRect(0, A - 74, L, 74);
+    ctx.fillStyle = 'rgba(0,0,0,.22)';
+    ctx.fillRect(0, A - 78, L, 5);
+    return new THREE.CanvasTexture(t.c);
+  }
+
+  /* ---------------------------- construção ---------------------------- */
+
+  function material(textura, brilho) {
+    return new THREE.MeshStandardMaterial({
+      map: textura || null,
+      color: textura ? 0xffffff : 0xffffff,
+      roughness: brilho === undefined ? 0.78 : brilho,
+      metalness: 0.04,
+      side: THREE.DoubleSide
+    });
+  }
+
+  function corSimples(cor, aspereza) {
+    return new THREE.MeshStandardMaterial({ color: cor, roughness: aspereza || 0.8, metalness: 0.05 });
+  }
+
+  function cilindro(rTopo, rBase, altura, mat, achatarZ) {
+    const g = new THREE.CylinderGeometry(rTopo, rBase, altura, 64, 1, true, -Math.PI / 2, Math.PI * 2);
+    const m = new THREE.Mesh(g, mat);
+    if (achatarZ) m.scale.z = achatarZ;
+    return m;
+  }
+
+  function montarKit() {
+    const grupo = new THREE.Group();
+    const matCamisa = material(texturaCamisa());
+    const matCalcao = material(texturaCalcao());
+    const matManga = material(texturaManga());
+    const matVermelho = corSimples(0xD9202C, 0.72);
+    const matEscuro = corSimples(0x16181B, 0.65);
+
+    /* camisa */
+    const tronco = cilindro(0.95, 1.06, 1.72, matCamisa, 0.6);
+    tronco.position.y = 0.86;
+    grupo.add(tronco);
+
+    const tampaOmbro = new THREE.Mesh(
+      new THREE.SphereGeometry(0.95, 48, 20, 0, Math.PI * 2, 0, Math.PI / 2),
+      corSimples(0x4A5058, 0.85)
+    );
+    tampaOmbro.scale.set(1, 0.34, 0.6);
+    tampaOmbro.position.y = 1.72;
+    grupo.add(tampaOmbro);
+
+    const gola = new THREE.Mesh(new THREE.TorusGeometry(0.33, 0.062, 16, 48), matVermelho);
+    gola.rotation.x = Math.PI / 2;
+    gola.scale.z = 1;
+    gola.position.set(0, 1.83, 0.02);
+    grupo.add(gola);
+
+    const buracoGola = new THREE.Mesh(new THREE.CircleGeometry(0.33, 40), corSimples(0x0E1013, 1));
+    buracoGola.rotation.x = -Math.PI / 2;
+    buracoGola.position.set(0, 1.82, 0.02);
+    grupo.add(buracoGola);
+
+    const barra = new THREE.Mesh(new THREE.TorusGeometry(1.05, 0.03, 12, 60), corSimples(0x2A2E33, 0.9));
+    barra.rotation.x = Math.PI / 2;
+    barra.scale.z = 0.6;
+    barra.position.y = 0.02;
+    grupo.add(barra);
+
+    [-1, 1].forEach(function (lado) {
+      const ombro = new THREE.Mesh(new THREE.SphereGeometry(0.3, 32, 24), corSimples(0x4A5058, 0.85));
+      ombro.position.set(lado * 0.9, 1.56, 0);
+      ombro.scale.z = 0.8;
+      grupo.add(ombro);
+
+      const manga = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.28, 0.66, 40, 1, true), matManga);
+      manga.position.set(lado * 1.1, 1.2, 0);
+      manga.rotation.z = lado * 0.24;
+      manga.scale.z = 0.86;
+      grupo.add(manga);
+
+      const punho = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.035, 12, 32), matVermelho);
+      punho.position.set(lado * 1.19, 0.88, 0);
+      punho.rotation.x = Math.PI / 2;
+      punho.rotation.y = lado * 0.24;
+      punho.scale.z = 0.86;
+      grupo.add(punho);
+    });
+
+    /* calção */
+    const quadril = cilindro(1.0, 0.98, 0.62, matCalcao, 0.6);
+    quadril.position.y = -0.25;
+    grupo.add(quadril);
+
+    const cos = new THREE.Mesh(new THREE.TorusGeometry(1.0, 0.045, 12, 60), matEscuro);
+    cos.rotation.x = Math.PI / 2;
+    cos.scale.z = 0.6;
+    cos.position.y = 0.06;
+    grupo.add(cos);
+
+    [-1, 1].forEach(function (lado) {
+      const perna = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.47, 0.8, 40, 1, true), matCalcao);
+      perna.position.set(lado * 0.46, -0.94, 0);
+      perna.scale.z = 0.78;
+      grupo.add(perna);
+
+      /* meião */
+      const meia = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.2, 1.05, 32, 1, true), matVermelho);
+      meia.position.set(lado * 0.46, -1.86, 0);
+      grupo.add(meia);
+
+      const punhoMeia = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.31, 0.2, 32), matVermelho);
+      punhoMeia.position.set(lado * 0.46, -1.4, 0);
+      grupo.add(punhoMeia);
+
+      /* chuteira */
+      const pe = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.2, 0.74), matEscuro);
+      pe.position.set(lado * 0.46, -2.44, 0.13);
+      grupo.add(pe);
+
+      const solado = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.06, 0.8), corSimples(0x0A0B0D, 0.6));
+      solado.position.set(lado * 0.46, -2.55, 0.13);
+      grupo.add(solado);
+
+      const risco = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.035, 0.3), corSimples(0xD9202C, 0.5));
+      risco.position.set(lado * 0.46, -2.4, 0.2);
+      grupo.add(risco);
+    });
+
+    return grupo;
+  }
+
+  /* ------------------------------ cena ------------------------------ */
+
+  function iniciar(elemento) {
+    if (typeof THREE === 'undefined') {
+      elemento.innerHTML = '<div style="padding:28px;color:#9AA3AE;font-size:14px">' +
+        'Não foi possível carregar a visualização 3D. Verifique sua conexão e recarregue a página.</div>';
+      return null;
+    }
+    palco = elemento;
+    palco.innerHTML = '';
+
+    cena = new THREE.Scene();
+    cena.background = null;
+
+    camera = new THREE.PerspectiveCamera(38, palco.clientWidth / palco.clientHeight, 0.1, 100);
+    camera.position.set(0, 0, distancia);
+
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(palco.clientWidth, palco.clientHeight);
+    palco.appendChild(renderer.domElement);
+
+    cena.add(new THREE.HemisphereLight(0xdfe7f0, 0x1a1c20, 0.85));
+    const luz = new THREE.DirectionalLight(0xffffff, 0.95);
+    luz.position.set(3, 5, 6);
+    cena.add(luz);
+    const contraLuz = new THREE.DirectionalLight(0xff5a63, 0.35);
+    contraLuz.position.set(-5, 2, -4);
+    cena.add(contraLuz);
+    const baixo = new THREE.DirectionalLight(0xffffff, 0.22);
+    baixo.position.set(0, -4, 2);
+    cena.add(baixo);
+
+    kit = montarKit();
+    kit.position.y = 0.28;
+    cena.add(kit);
+
+    ligarControles();
+    window.addEventListener('resize', redimensionar);
+    animando = true;
+    laco();
+    return { verFrente: verFrente, verCostas: verCostas, verLado: verLado, destruir: destruir };
+  }
+
+  function redimensionar() {
+    if (!renderer || !palco || !palco.clientWidth) return;
+    camera.aspect = palco.clientWidth / palco.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(palco.clientWidth, palco.clientHeight);
+  }
+
+  function ligarControles() {
+    let arrastando = false, ultimoX = 0, ultimoY = 0;
+
+    function inicio(x, y) { arrastando = true; ultimoX = x; ultimoY = y; palco.classList.add('arrastando'); }
+    function move(x, y) {
+      if (!arrastando) return;
+      alvoY += (x - ultimoX) * 0.0095;
+      alvoX += (y - ultimoY) * 0.006;
+      alvoX = Math.max(-0.55, Math.min(0.55, alvoX));
+      ultimoX = x; ultimoY = y;
+    }
+    function fim() { arrastando = false; palco.classList.remove('arrastando'); }
+
+    palco.addEventListener('mousedown', function (e) { inicio(e.clientX, e.clientY); });
+    window.addEventListener('mousemove', function (e) { move(e.clientX, e.clientY); });
+    window.addEventListener('mouseup', fim);
+    palco.addEventListener('touchstart', function (e) { inicio(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+    palco.addEventListener('touchmove', function (e) { move(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); }, { passive: false });
+    palco.addEventListener('touchend', fim);
+    palco.addEventListener('wheel', function (e) {
+      e.preventDefault();
+      alvoDist = Math.max(3.6, Math.min(8.5, alvoDist + e.deltaY * 0.0035));
+    }, { passive: false });
+  }
+
+  function laco() {
+    if (!animando) return;
+    requestAnimationFrame(laco);
+    girY += (alvoY - girY) * 0.12;
+    girX += (alvoX - girX) * 0.12;
+    distancia += (alvoDist - distancia) * 0.1;
+    if (kit) { kit.rotation.y = girY; kit.rotation.x = girX; }
+    camera.position.z = distancia;
+    renderer.render(cena, camera);
+  }
+
+  function normalizarVolta(destino) {
+    const voltas = Math.round((alvoY - destino) / (Math.PI * 2));
+    return destino + voltas * Math.PI * 2;
+  }
+
+  function verFrente() { alvoY = normalizarVolta(0); alvoX = 0; }
+  function verCostas() { alvoY = normalizarVolta(Math.PI); alvoX = 0; }
+  function verLado() { alvoY = normalizarVolta(Math.PI / 2); alvoX = 0; }
+
+  function destruir() {
+    animando = false;
+    window.removeEventListener('resize', redimensionar);
+    if (renderer) { renderer.dispose(); renderer = null; }
+    cena = null; kit = null;
+  }
+
+  return { iniciar: iniciar };
+})();
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+/* =====================================================================
+   Cidade Sports — aplicação do solicitante e do administrador
+   ===================================================================== */
+
+const estado = {
+  token: null,
+  usuario: null,
+  publico: null,
+  config: null,
+  tela: 'entrar',
+  pedidos: [],
+  rascunho: null,
+  visor: null,
+  admin: { abaAtual: 'pedidos', filtro: 'TODOS', pedidos: [], resumo: {}, pecas: {}, usuarios: [] },
+  mensagem: null
+};
+
+const el = function (id) { return document.getElementById(id); };
+const escapar = function (t) {
+  return String(t === null || t === undefined ? '' : t)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+};
+const moeda = function (v) { return 'R$ ' + Number(v || 0).toFixed(2).replace('.', ','); };
+
+/* --------------------------- ponte com o servidor --------------------------- */
+
+/* Endereço do app da web publicado no Apps Script (termina em /exec).
+   Se um dia você reimplantar gerando uma URL nova, troque só esta linha. */
+const URL_API = 'https://script.google.com/macros/s/AKfycbyGUOJUBtTamNxIzm9WEt0-iGY0Wn544-0vZIimxDLDH2jmWhvDRVCCC7pMVu_-iJEKIg/exec';
+
+function chamar(acao, dados) {
+  const carga = Object.assign({ token: estado.token }, dados || {});
+
+  /* Servido pelo próprio Apps Script: usa a ponte interna. */
+  if (typeof google !== 'undefined' && google.script && google.script.run) {
+    return new Promise(function (resolve, reject) {
+      google.script.run
+        .withSuccessHandler(function (r) { r && r.ok ? resolve(r.dados) : reject(erroServidor(r ? r.erro : 'Falha inesperada.')); })
+        .withFailureHandler(function (e) { reject(new Error(e && e.message ? e.message : String(e))); })
+        .api(acao, carga);
+    });
+  }
+
+  /* Servido pelo GitHub Pages ou por qualquer outro endereço: chama a API. */
+  if (!URL_API || URL_API.indexOf('/exec') === -1) {
+    return Promise.reject(new Error('Preencha a constante URL_API no topo do arquivo com o endereço do app da web.'));
+  }
+
+  return porPost(acao, carga).catch(function (e) {
+    if (e.doServidor) throw e;
+    if (carga.arquivo) throw new Error('O comprovante não foi enviado. Confira a conexão e tente de novo.');
+    return porJsonp(acao, carga);
+  });
+}
+
+function erroServidor(mensagem) {
+  const e = new Error(mensagem);
+  e.doServidor = true;
+  return e;
+}
+
+function porPost(acao, carga) {
+  return fetch(URL_API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ acao: acao, dados: carga }),
+    redirect: 'follow'
+  }).then(function (r) { return r.json(); })
+    .then(function (r) {
+      if (!r || !r.ok) throw erroServidor(r && r.erro ? r.erro : 'Falha inesperada.');
+      return r.dados;
+    });
+}
+
+/* Reserva para navegadores que barram a chamada direta. Só para dados pequenos. */
+function porJsonp(acao, carga) {
+  return new Promise(function (resolve, reject) {
+    const nome = 'cs_' + Math.random().toString(36).slice(2);
+    const script = document.createElement('script');
+    const tempo = setTimeout(function () { limpar(); reject(new Error('O servidor demorou para responder.')); }, 25000);
+    function limpar() { clearTimeout(tempo); delete window[nome]; script.remove(); }
+    window[nome] = function (r) {
+      limpar();
+      if (!r || !r.ok) reject(erroServidor(r && r.erro ? r.erro : 'Falha inesperada.'));
+      else resolve(r.dados);
+    };
+    script.onerror = function () { limpar(); reject(new Error('Não foi possível falar com o servidor.')); };
+    script.src = URL_API + '?acao=' + encodeURIComponent(acao) +
+      '&dados=' + encodeURIComponent(JSON.stringify(carga)) + '&callback=' + nome;
+    document.body.appendChild(script);
+  });
+}
+
+function avisar(texto, tipo) {
+  estado.mensagem = { texto: texto, tipo: tipo || 'ok' };
+  const caixa = el('mensagem');
+  if (caixa) {
+    caixa.innerHTML = '<div class="aviso ' + estado.mensagem.tipo + '">' + escapar(texto) + '</div>';
+    caixa.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+}
+
+function limparAviso() { estado.mensagem = null; const c = el('mensagem'); if (c) c.innerHTML = ''; }
+
+function ocupado(botao, ligado, textoOriginal) {
+  if (!botao) return;
+  botao.disabled = ligado;
+  if (ligado) { botao.dataset.antes = botao.textContent; botao.textContent = 'Aguarde…'; }
+  else { botao.textContent = textoOriginal || botao.dataset.antes || botao.textContent; }
+}
+
+/* ------------------------------- inicialização ------------------------------- */
+
+window.addEventListener('DOMContentLoaded', function () {
+  chamar('publico').then(function (p) {
+    estado.publico = p;
+    const salvo = sessionStorage.getItem('cs_token');
+    if (salvo) {
+      estado.token = salvo;
+      return chamar('sessao').then(function (u) {
+        estado.usuario = u;
+        return carregarConfig().then(function () {
+          return irPara(u.perfil === 'admin' ? 'admin' : 'inicio');
+        });
+      }).catch(function () { estado.token = null; sessionStorage.removeItem('cs_token'); desenhar('entrar'); });
+    }
+    desenhar('entrar');
+  }).catch(function (e) {
+    document.getElementById('app').innerHTML =
+      '<main><div class="cartao destaque"><h2>Não foi possível iniciar</h2>' +
+      '<p class="sub">' + escapar(e.message) + '</p></div></main>';
+  });
+});
+
+/* Preços, situações e demais regras vêm do servidor, e só depois do login. */
+function carregarConfig() {
+  return chamar('config').then(function (cfg) { estado.config = cfg; return cfg; });
+}
+
+function irPara(tela) {
+  if (tela === 'inicio') {
+    return chamar('meusPedidos').then(function (p) { estado.pedidos = p; desenhar('inicio'); });
+  }
+  if (tela === 'admin') {
+    return carregarAdmin();
+  }
+  desenhar(tela);
+  return Promise.resolve();
+}
+
+function desenhar(tela) {
+  if (tela) estado.tela = tela;
+  const partes = [cabecalho()];
+  partes.push('<main><div id="mensagem"></div>');
+  switch (estado.tela) {
+    case 'entrar': partes.push(telaEntrar()); break;
+    case 'cadastrar': partes.push(telaCadastrar()); break;
+    case 'inicio': partes.push(telaInicio()); break;
+    case 'solicitar': partes.push(telaSolicitar()); break;
+    case 'admin': partes.push(telaAdmin()); break;
+    case 'senha': partes.push(telaSenha()); break;
+  }
+  partes.push(cartaoSuporte());
+  partes.push('</main>');
+  el('app').innerHTML = partes.join('');
+  if (estado.mensagem) avisar(estado.mensagem.texto, estado.mensagem.tipo);
+  if (estado.tela === 'solicitar' && estado.rascunho.etapa === 1) montarVisor();
+  if (estado.tela === 'solicitar' && estado.rascunho.etapa === 2 && estado.rascunho.qrAberto) desenharQr();
+  aplicarMascaras();
+}
+
+/* --------------------------------- topo --------------------------------- */
+
+function cabecalho() {
+  let direita = '';
+  if (estado.usuario) {
+    direita =
+      '<div class="quem"><b>' + escapar(estado.usuario.nome) + '</b>' +
+      '<small>' + (estado.usuario.perfil === 'admin' ? 'Administrador' : 'Solicitante') + '</small></div>' +
+      (estado.usuario.perfil === 'admin' && estado.tela !== 'admin'
+        ? '<button class="secundario pequeno" onclick="irPara(\'admin\')">Painel</button>' : '') +
+      (estado.tela !== 'inicio' && estado.usuario.perfil !== 'admin'
+        ? '<button class="secundario pequeno" onclick="irPara(\'inicio\')">Meus pedidos</button>' : '') +
+      '<button class="secundario pequeno" onclick="desenhar(\'senha\')">Senha</button>' +
+      '<button class="secundario pequeno" onclick="sair()">Sair</button>';
+  }
+  return '<header class="topo"><div class="marca">Cidade <span>SPORTS</span></div>' +
+    '<div class="espaco"></div>' + direita + '</header>';
+}
+
+function cartaoSuporte() {
+  const s = (estado.publico && estado.publico.suporte) || (estado.config && estado.config.suporte);
+  if (!s) return '';
+  const zap = 'https://wa.me/55' + s.fone.replace(/\D/g, '');
+  return '<div class="suporte"><div><b>Deu algum problema?</b>' +
+    '<p>Fale com ' + escapar(s.nome) + ' pelo WhatsApp ' + escapar(s.fone) + ' e resolvemos junto com você.</p></div>' +
+    '<a href="' + zap + '" target="_blank" rel="noopener"><button class="pequeno">Chamar no WhatsApp</button></a></div>';
+}
+
+/* ------------------------------ entrar/cadastro ------------------------------ */
+
+function telaEntrar() {
+  return '<div class="centro"><h1>Uniforme do time</h1>' +
+    '<p class="sub" style="color:var(--texto-fraco);margin:6px 0 20px">Use o WhatsApp do seu cadastro. Quem tem nome de usuário pode entrar por ele.</p>' +
+    '<div class="cartao destaque">' +
+    '<div class="campo"><label for="e_login">Usuário ou WhatsApp</label>' +
+    '<input id="e_login" data-mascara="login" autocapitalize="none" placeholder="seu.usuario ou (12) 90000-0000"></div>' +
+    '<div class="campo"><label for="e_senha">Senha</label>' +
+    '<input id="e_senha" type="password" placeholder="Sua senha" onkeydown="if(event.key===\'Enter\')entrar(this)"></div>' +
+    '<div class="acoes"><button onclick="entrar(this)">Entrar</button>' +
+    '<button class="texto" onclick="desenhar(\'cadastrar\')">Ainda não tenho cadastro</button></div>' +
+    '</div></div>';
+}
+
+function telaCadastrar() {
+  return '<div class="centro"><h1>Criar cadastro</h1>' +
+    '<p class="sub" style="color:var(--texto-fraco);margin:6px 0 20px">Leva menos de um minuto.</p>' +
+    '<div class="cartao destaque">' +
+    '<div class="campo"><label for="c_nome">Nome completo</label><input id="c_nome" placeholder="Como você quer ser chamado"></div>' +
+    '<div class="campo"><label for="c_fone">WhatsApp</label><input id="c_fone" data-mascara="fone" inputmode="numeric" placeholder="(12) 90000-0000"></div>' +
+    '<div class="campo"><label for="c_nasc">Data de nascimento</label><input id="c_nasc" type="date"></div>' +
+    '<div class="campo"><label for="c_senha">Crie uma senha</label><input id="c_senha" type="password" placeholder="Mínimo de 6 caracteres"></div>' +
+    '<div class="acoes"><button onclick="cadastrar(this)">Criar cadastro</button>' +
+    '<button class="texto" onclick="desenhar(\'entrar\')">Já tenho cadastro</button></div>' +
+    '</div></div>';
+}
+
+function entrar(botao) {
+  limparAviso();
+  ocupado(botao, true);
+  chamar('entrar', { login: el('e_login').value, senha: el('e_senha').value })
+    .then(function (s) {
+      estado.token = s.token; estado.usuario = s.usuario;
+      sessionStorage.setItem('cs_token', s.token);
+      return carregarConfig().then(function () {
+        if (s.usuario.senhaTemporaria) {
+          avisar('Você está usando a senha padrão. Crie uma senha sua para continuar.', 'atencao');
+          desenhar('senha');
+        } else {
+          irPara(s.usuario.perfil === 'admin' ? 'admin' : 'inicio');
+        }
+      });
+    })
+    .catch(function (e) { ocupado(botao, false, 'Entrar'); avisar(e.message, 'erro'); });
+}
+
+function cadastrar(botao) {
+  limparAviso();
+  ocupado(botao, true);
+  const nasc = el('c_nasc').value;
+  chamar('cadastrar', {
+    nome: el('c_nome').value,
+    whatsapp: el('c_fone').value,
+    nascimento: nasc ? nasc.split('-').reverse().join('/') : '',
+    senha: el('c_senha').value
+  }).then(function (s) {
+    estado.token = s.token; estado.usuario = s.usuario;
+    sessionStorage.setItem('cs_token', s.token);
+    return carregarConfig().then(function () {
+      return irPara('inicio').then(function () { avisar('Cadastro criado. Bem-vindo, ' + s.usuario.nome + '.', 'ok'); });
+    });
+  }).catch(function (e) { ocupado(botao, false, 'Criar cadastro'); avisar(e.message, 'erro'); });
+}
+
+function sair() {
+  chamar('sair').catch(function () {}).then(function () {
+    sessionStorage.removeItem('cs_token');
+    estado.token = null; estado.usuario = null; estado.pedidos = []; estado.rascunho = null;
+    desenhar('entrar');
+  });
+}
+
+function telaSenha() {
+  return '<div class="centro"><h1>Trocar senha</h1><div class="cartao destaque">' +
+    '<div class="campo"><label for="s_atual">Senha atual</label><input id="s_atual" type="password"></div>' +
+    '<div class="campo"><label for="s_nova">Nova senha</label><input id="s_nova" type="password" placeholder="Mínimo de 6 caracteres"></div>' +
+    '<div class="acoes"><button onclick="trocarSenha(this)">Salvar nova senha</button>' +
+    '<button class="secundario" onclick="irPara(estado.usuario.perfil===\'admin\'?\'admin\':\'inicio\')">Voltar</button></div>' +
+    '</div></div>';
+}
+
+function trocarSenha(botao) {
+  limparAviso();
+  ocupado(botao, true);
+  chamar('trocarSenha', { senhaAtual: el('s_atual').value, novaSenha: el('s_nova').value })
+    .then(function () {
+      estado.usuario.senhaTemporaria = false;
+      irPara(estado.usuario.perfil === 'admin' ? 'admin' : 'inicio')
+        .then(function () { avisar('Senha alterada.', 'ok'); });
+    })
+    .catch(function (e) { ocupado(botao, false, 'Salvar nova senha'); avisar(e.message, 'erro'); });
+}
+
+/* --------------------------------- máscaras --------------------------------- */
+
+function aplicarMascaras() {
+  Array.prototype.forEach.call(document.querySelectorAll('[data-mascara]'), function (campo) {
+    campo.addEventListener('input', function () {
+      if (campo.dataset.mascara === 'login' && /[a-zA-Z@._-]/.test(campo.value)) return;
+      let d = campo.value.replace(/\D/g, '').slice(0, 11);
+      let saida = '';
+      if (d.length) saida = '(' + d.slice(0, 2);
+      if (d.length >= 2) saida += ') ' + d.slice(2, d.length > 10 ? 7 : 6);
+      if (d.length > (d.length > 10 ? 7 : 6)) saida += '-' + d.slice(d.length > 10 ? 7 : 6);
+      campo.value = saida;
+    });
+  });
+}
+
+/* ------------------------------ início solicitante ------------------------------ */
+
+function corDoStatus(s) {
+  const S = estado.config.status;
+  if (s === S.AGUARDANDO_COMPROVANTE) return 'cinza';
+  if (s === S.EM_ANALISE) return 'ambar';
+  if (s === S.CORRECAO) return 'vermelho';
+  if (s === S.ACEITO) return 'azul';
+  if (s === S.DISPONIVEL) return 'verde';
+  if (s === S.ENTREGUE) return 'verde';
+  return 'cinza';
+}
+
+function telaInicio() {
+  const S = estado.config.status;
+  let html = '<h1>Meus pedidos</h1>' +
+    '<p class="sub" style="color:var(--texto-fraco);margin:6px 0 20px">Acompanhe aqui cada etapa do seu uniforme.</p>' +
+    '<div class="acoes" style="margin-bottom:22px"><button onclick="novaSolicitacao()">Solicitar uniforme</button></div>';
+
+  if (!estado.pedidos.length) {
+    html += '<div class="cartao"><h3>Nenhum pedido ainda</h3>' +
+      '<p class="sub">Toque em “Solicitar uniforme” para ver o modelo em 3D e escolher os tamanhos.</p></div>';
+    return html;
+  }
+
+  estado.pedidos.forEach(function (p) {
+    html += '<div class="pedido"><div class="cab">' +
+      '<span class="id">' + escapar(p.id) + '</span>' +
+      '<span class="selo ' + corDoStatus(p.status) + '">' + escapar(p.status) + '</span>' +
+      '<span class="espaco"></span><b>' + moeda(p.total) + '</b></div>' +
+      '<div class="corpo">';
+
+    if (p.status === S.CORRECAO) {
+      html += '<div class="aviso erro"><b>O administrador pediu um ajuste:</b><br>' + escapar(p.observacaoAdmin) + '</div>';
+    }
+    if (p.status === S.DISPONIVEL) {
+      html += '<div class="aviso ok">Uniforme disponível para entrega. Combine a retirada com ' +
+        escapar(estado.config.suporte.nome) + '.</div>';
+    }
+
+    html += '<ul>';
+    p.itens.forEach(function (i) {
+      html += '<li><span>' + escapar(i.rotulo) + ' — ' +
+        (i.para === 'eu' ? 'para mim' : escapar(i.nomeUso)) + ' × ' + i.quantidade + '</span>' +
+        '<span>' + moeda(i.subtotal) + '</span></li>';
+    });
+    html += '</ul>';
+
+    if (p.comprovanteUrl) {
+      html += '<p style="margin-top:10px"><a href="' + escapar(p.comprovanteUrl) + '" target="_blank" rel="noopener">Ver comprovante enviado</a></p>';
+    }
+
+    html += '<div class="linha-tempo">';
+    p.historico.slice(-4).forEach(function (h) {
+      html += '<div>' + escapar(h.quando) + ' — ' + escapar(h.oque) + '</div>';
+    });
+    html += '</div>';
+
+    if (p.status === S.AGUARDANDO_COMPROVANTE || p.status === S.CORRECAO) {
+      html += '<div class="acoes" style="margin-top:14px">' +
+        '<button class="pequeno" onclick="retomarPedido(\'' + p.id + '\')">Continuar pedido</button>' +
+        '<button class="secundario pequeno" onclick="cancelarPedido(\'' + p.id + '\')">Cancelar pedido</button></div>';
+    }
+    html += '</div></div>';
+  });
+  return html;
+}
+
+function cancelarPedido(id) {
+  if (!confirm('Cancelar este pedido?')) return;
+  chamar('cancelarPedido', { pedidoId: id })
+    .then(function () { irPara('inicio').then(function () { avisar('Pedido cancelado.', 'ok'); }); })
+    .catch(function (e) { avisar(e.message, 'erro'); });
+}
+
+/* ------------------------------ fluxo de pedido ------------------------------ */
+
+function novaSolicitacao() {
+  estado.rascunho = { etapa: 1, para: null, itens: [], pedido: null, qrAberto: false, arquivo: null, pix: null };
+  desenhar('solicitar');
+}
+
+function retomarPedido(id) {
+  const p = estado.pedidos.filter(function (x) { return x.id === id; })[0];
+  estado.rascunho = {
+    etapa: 2,
+    para: p.itens.length && p.itens[0].para === 'filho' ? 'filho' : 'eu',
+    itens: p.itens.map(function (i) {
+      return { para: i.para, nomeUso: i.nomeUso, tamanho: i.tamanho, quantidade: i.quantidade };
+    }),
+    pedido: p, qrAberto: false, arquivo: null, pix: null
+  };
+  desenhar('solicitar');
+}
+
+function telaSolicitar() {
+  const r = estado.rascunho;
+  const passos = ['Escolher o uniforme', 'Pagar com PIX', 'Acompanhar'];
+  let html = '<div class="etapas">';
+  passos.forEach(function (nome, i) {
+    const n = i + 1;
+    html += '<div class="' + (r.etapa === n ? 'ativa' : (r.etapa > n ? 'feita' : '')) + '">' +
+      '<b>' + n + '</b>' + nome + '</div>';
+  });
+  html += '</div>';
+
+  if (r.etapa === 1) html += etapaUniforme();
+  if (r.etapa === 2) html += etapaPagamento();
+  if (r.etapa === 3) html += etapaAcompanhar();
+  return html;
+}
+
+/* etapa 1 ------------------------------------------------------------------ */
+
+function etapaUniforme() {
+  const r = estado.rascunho;
+  const precos = estado.config.precos;
+
+  let html = '<div class="grade duas" style="align-items:start">' +
+    '<div><div class="palco" id="palco"></div>' +
+    '<div class="palco vistas" style="position:static;height:auto;border:none;background:none;margin-top:10px;display:flex;gap:8px">' +
+    '<button class="secundario pequeno" onclick="estado.visor&&estado.visor.verFrente()">Frente</button>' +
+    '<button class="secundario pequeno" onclick="estado.visor&&estado.visor.verLado()">Lateral</button>' +
+    '<button class="secundario pequeno" onclick="estado.visor&&estado.visor.verCostas()">Costas</button>' +
+    '</div>' +
+    '<small style="display:block;margin-top:8px">Arraste com o mouse para girar. Use a rolagem para aproximar.</small></div>';
+
+  html += '<div class="cartao destaque"><h2>Para quem é o uniforme?</h2>' +
+    '<p class="sub">Você pode pedir para você, para os filhos ou para os dois no mesmo pedido.</p>' +
+    '<div class="opcoes" style="margin-bottom:18px">' +
+    '<button class="' + (r.para === 'eu' ? 'marcada' : '') + '" onclick="escolherPara(\'eu\')">É para mim</button>' +
+    '<button class="' + (r.para === 'filho' ? 'marcada' : '') + '" onclick="escolherPara(\'filho\')">É para meu filho(a)</button>' +
+    '</div>';
+
+  if (r.para) {
+    html += '<div id="itens">';
+    r.itens.forEach(function (item, idx) {
+      html += '<div class="item"><div class="topo-item"><b>Uniforme ' + (idx + 1) + '</b>' +
+        (r.itens.length > 1 ? '<button class="texto" onclick="removerItem(' + idx + ')">Remover</button>' : '') +
+        '</div>';
+
+      html += '<div class="campo"><label>Para quem</label><select onchange="mudarItem(' + idx + ',\'para\',this.value)">' +
+        '<option value="eu"' + (item.para === 'eu' ? ' selected' : '') + '>Para mim</option>' +
+        '<option value="filho"' + (item.para === 'filho' ? ' selected' : '') + '>Para meu filho(a)</option>' +
+        '</select></div>';
+
+      if (item.para === 'filho') {
+        html += '<div class="campo"><label>Nome do filho(a)</label>' +
+          '<input value="' + escapar(item.nomeUso) + '" placeholder="Nome de quem vai usar" ' +
+          'onchange="mudarItem(' + idx + ',\'nomeUso\',this.value)"></div>';
+      }
+
+      html += '<div class="linha"><div class="campo"><label>Tamanho</label>' +
+        '<select onchange="mudarItem(' + idx + ',\'tamanho\',this.value)">' +
+        '<option value="">Escolha o tamanho</option>';
+      Object.keys(precos).forEach(function (chave) {
+        html += '<option value="' + chave + '"' + (item.tamanho === chave ? ' selected' : '') + '>' +
+          escapar(precos[chave].rotulo) + ' — ' + moeda(precos[chave].valor) + '</option>';
+      });
+      html += '</select></div>' +
+        '<div class="campo"><label>Quantidade</label>' +
+        '<input type="number" min="1" max="20" value="' + item.quantidade + '" ' +
+        'onchange="mudarItem(' + idx + ',\'quantidade\',this.value)"></div>' +
+        '<div class="campo" style="text-align:right"><label>Subtotal</label>' +
+        '<div style="padding:11px 0;font-weight:600">' +
+        moeda(item.tamanho ? precos[item.tamanho].valor * item.quantidade : 0) + '</div></div>' +
+        '</div></div>';
+    });
+    html += '</div>';
+
+    html += '<button class="secundario pequeno" onclick="adicionarItem()">Adicionar outro uniforme</button>';
+    html += '<div class="total"><span>Total do pedido</span><b>' + moeda(totalRascunho()) + '</b></div>';
+    html += '<p style="margin-top:6px"><small>Infantil é um pouco menor que o M.</small></p>';
+    html += '<div class="acoes" style="margin-top:16px">' +
+      '<button onclick="irParaPagamento(this)">Ir para o pagamento</button>' +
+      '<button class="secundario" onclick="irPara(\'inicio\')">Voltar</button></div>';
+  }
+
+  html += '</div></div>';
+  return html;
+}
+
+function montarVisor() {
+  const palco = el('palco');
+  if (!palco) return;
+  if (estado.visor && estado.visor.destruir) estado.visor.destruir();
+  estado.visor = Uniforme3D.iniciar(palco);
+}
+
+function escolherPara(quem) {
+  const r = estado.rascunho;
+  r.para = quem;
+  if (!r.itens.length) r.itens = [{ para: quem, nomeUso: '', tamanho: '', quantidade: 1 }];
+  else r.itens.forEach(function (i) { i.para = quem; if (quem === 'eu') i.nomeUso = ''; });
+  desenhar();
+}
+
+function adicionarItem() {
+  estado.rascunho.itens.push({ para: estado.rascunho.para, nomeUso: '', tamanho: '', quantidade: 1 });
+  desenhar();
+}
+
+function removerItem(idx) {
+  estado.rascunho.itens.splice(idx, 1);
+  desenhar();
+}
+
+function mudarItem(idx, campo, valor) {
+  const item = estado.rascunho.itens[idx];
+  item[campo] = campo === 'quantidade' ? Math.max(1, Math.min(20, parseInt(valor, 10) || 1)) : valor;
+  if (campo === 'para' && valor === 'eu') item.nomeUso = '';
+  desenhar();
+}
+
+function totalRascunho() {
+  const precos = estado.config.precos;
+  return estado.rascunho.itens.reduce(function (s, i) {
+    return s + (i.tamanho ? precos[i.tamanho].valor * i.quantidade : 0);
+  }, 0);
+}
+
+function irParaPagamento(botao) {
+  limparAviso();
+  const r = estado.rascunho;
+  const faltando = r.itens.filter(function (i) { return !i.tamanho || (i.para === 'filho' && !i.nomeUso.trim()); });
+  if (faltando.length) { avisar('Complete o tamanho e o nome de quem vai usar em todos os uniformes.', 'erro'); return; }
+
+  ocupado(botao, true);
+  const acao = r.pedido ? 'editarPedido' : 'criarPedido';
+  const dados = { itens: r.itens };
+  if (r.pedido) dados.pedidoId = r.pedido.id;
+
+  chamar(acao, dados).then(function (resposta) {
+    if (!r.pedido) r.pedido = resposta;
+    else { r.pedido.itens = r.itens.slice(); r.pedido.total = totalRascunho(); }
+    r.etapa = 2;
+    desenhar();
+  }).catch(function (e) { ocupado(botao, false, 'Ir para o pagamento'); avisar(e.message, 'erro'); });
+}
+
+/* etapa 2 — PIX ----------------------------------------------------------- */
+
+function etapaPagamento() {
+  const r = estado.rascunho;
+  const total = r.pedido ? r.pedido.total : totalRascunho();
+
+  let html = '<div class="cartao destaque"><h2>Pagamento por PIX</h2>' +
+    '<p class="sub">Pedido ' + escapar(r.pedido.id) + ' — valor total ' + moeda(total) + '</p>';
+
+  if (r.pedido.status === estado.config.status.CORRECAO) {
+    html += '<div class="aviso erro"><b>Ajuste pedido pelo administrador:</b><br>' +
+      escapar(r.pedido.observacaoAdmin) + '</div>';
+  }
+
+  html += '<div class="acoes" style="margin-bottom:18px">' +
+    '<button onclick="abrirQr(this)">Ver QR Code</button>' +
+    '<button class="secundario" onclick="copiarChave(this)">Copiar chave PIX</button>' +
+    '<button class="secundario" onclick="voltarEtapa1()">Alterar uniformes</button></div>';
+
+  if (r.qrAberto && r.pix) {
+    html += '<div class="pix"><div class="qr" id="qr"></div><div class="lado">' +
+      '<label>Chave PIX (e-mail)</label>' +
+      '<code class="chave">' + escapar(r.pix.chave) + '</code>' +
+      '<label>PIX copia e cola</label>' +
+      '<code class="chave" id="brcode">' + escapar(r.pix.copiaECola) + '</code>' +
+      '<button class="secundario pequeno" onclick="copiarTexto(document.getElementById(\'brcode\').textContent,this)">Copiar código</button>' +
+      '</div></div>';
+  }
+
+  if (r.qrAberto || r.chaveCopiada) {
+    html += '<div style="margin-top:22px;border-top:1px solid var(--linha);padding-top:20px">' +
+      '<h3>Anexar comprovante</h3>' +
+      '<p class="sub">Envie o print ou o PDF do comprovante. Aceita imagem ou PDF de até 8 MB.</p>' +
+      '<div class="campo"><input type="file" id="arquivo" accept="image/*,application/pdf" onchange="lerArquivo(this)"></div>' +
+      '<div id="previa"></div>' +
+      '<div class="acoes"><button onclick="enviarComprovante(this)">Enviar comprovante</button>' +
+      '<button class="secundario" onclick="irPara(\'inicio\')">Enviar depois</button></div></div>';
+  }
+
+  html += '</div>';
+  return html;
+}
+
+function voltarEtapa1() { estado.rascunho.etapa = 1; desenhar(); }
+
+/* A chave e o código copia e cola são montados no servidor, com o valor do pedido. */
+function carregarPix() {
+  const r = estado.rascunho;
+  if (r.pix) return Promise.resolve(r.pix);
+  return chamar('pix', { pedidoId: r.pedido.id }).then(function (p) { r.pix = p; return p; });
+}
+
+function abrirQr(botao) {
+  limparAviso();
+  ocupado(botao, true);
+  carregarPix()
+    .then(function () { estado.rascunho.qrAberto = true; desenhar(); })
+    .catch(function (e) { ocupado(botao, false, 'Ver QR Code'); avisar(e.message, 'erro'); });
+}
+
+function copiarChave(botao) {
+  limparAviso();
+  ocupado(botao, true);
+  carregarPix().then(function (pix) {
+    copiarTexto(pix.chave);
+    estado.rascunho.chaveCopiada = true;
+    desenhar();
+    avisar('Chave PIX copiada. Agora anexe o comprovante abaixo.', 'ok');
+  }).catch(function (e) { ocupado(botao, false, 'Copiar chave PIX'); avisar(e.message, 'erro'); });
+}
+
+function copiarTexto(texto, botao) {
+  const rotulo = botao ? botao.textContent : '';
+  const feito = function () { if (botao) { botao.textContent = 'Copiado'; setTimeout(function () { botao.textContent = rotulo; }, 1800); } };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(texto).then(feito).catch(function () { copiaAntiga(texto); feito(); });
+  } else { copiaAntiga(texto); feito(); }
+}
+
+function copiaAntiga(texto) {
+  const area = document.createElement('textarea');
+  area.value = texto;
+  area.style.position = 'fixed'; area.style.opacity = '0';
+  document.body.appendChild(area); area.select();
+  try { document.execCommand('copy'); } catch (e) {}
+  document.body.removeChild(area);
+}
+
+function desenharQr() {
+  const alvo = el('qr');
+  if (!alvo || !estado.rascunho.pix) return;
+  alvo.innerHTML = '';
+  if (typeof QRCode !== 'undefined') {
+    new QRCode(alvo, { text: estado.rascunho.pix.copiaECola, width: 190, height: 190, correctLevel: QRCode.CorrectLevel.M });
+  } else {
+    alvo.innerHTML = '<div style="color:#333;font-size:12px;width:190px">Não foi possível gerar a imagem do QR Code. ' +
+      'Use a chave PIX ou o código copia e cola ao lado.</div>';
+  }
+}
+
+function lerArquivo(campo) {
+  const arquivo = campo.files[0];
+  const previa = el('previa');
+  if (!arquivo) { estado.rascunho.arquivo = null; previa.innerHTML = ''; return; }
+  if (arquivo.size > 8 * 1024 * 1024) {
+    previa.innerHTML = '<div class="aviso erro">Arquivo maior que 8 MB. Envie uma imagem menor.</div>';
+    campo.value = ''; return;
+  }
+  const leitor = new FileReader();
+  leitor.onload = function () {
+    estado.rascunho.arquivo = {
+      nome: arquivo.name, tipo: arquivo.type,
+      base64: String(leitor.result).split(',')[1]
+    };
+    previa.innerHTML = arquivo.type.indexOf('image') === 0
+      ? '<img src="' + leitor.result + '" style="max-width:220px;border-radius:8px;border:1px solid var(--linha);margin-bottom:14px">'
+      : '<div class="aviso ok">' + escapar(arquivo.name) + ' pronto para envio.</div>';
+  };
+  leitor.readAsDataURL(arquivo);
+}
+
+function enviarComprovante(botao) {
+  limparAviso();
+  if (!estado.rascunho.arquivo) { avisar('Anexe o comprovante antes de enviar.', 'erro'); return; }
+  ocupado(botao, true);
+  chamar('enviarComprovante', { pedidoId: estado.rascunho.pedido.id, arquivo: estado.rascunho.arquivo })
+    .then(function () {
+      estado.rascunho.etapa = 3;
+      desenhar();
+    })
+    .catch(function (e) { ocupado(botao, false, 'Enviar comprovante'); avisar(e.message, 'erro'); });
+}
+
+/* etapa 3 ------------------------------------------------------------------ */
+
+function etapaAcompanhar() {
+  const r = estado.rascunho;
+  return '<div class="cartao destaque"><h2>Comprovante enviado</h2>' +
+    '<p class="sub">Pedido ' + escapar(r.pedido.id) + ' — ' + moeda(r.pedido.total) + '</p>' +
+    '<div class="aviso ok">Agora é com a equipe: o administrador confere o pagamento e aceita o pedido. ' +
+    'Se faltar algo, você recebe aqui a orientação do que corrigir.</div>' +
+    '<p>Depois do aceite, o pedido fica como <b>aceito — aguardando recebimento</b> e, quando os uniformes chegarem, ' +
+    'muda para <b>disponível para entrega</b>.</p>' +
+    '<div class="acoes" style="margin-top:16px"><button onclick="irPara(\'inicio\')">Ver meus pedidos</button></div></div>';
+}
+
+/* ---------------------------------- admin ---------------------------------- */
+
+function carregarAdmin() {
+  return Promise.all([chamar('adminPedidos'), chamar('adminUsuarios')])
+    .then(function (r) {
+      estado.admin.pedidos = r[0].pedidos;
+      estado.admin.resumo = r[0].resumo;
+      estado.admin.pecas = r[0].pecas;
+      estado.admin.usuarios = r[1];
+      desenhar('admin');
+    })
+    .catch(function (e) { avisar(e.message, 'erro'); });
+}
+
+function telaAdmin() {
+  let html = '<h1>Painel do administrador</h1>' +
+    '<div class="abas">' +
+    '<button class="' + (estado.admin.abaAtual === 'pedidos' ? 'marcada' : '') + '" onclick="abaAdmin(\'pedidos\')">Pedidos</button>' +
+    '<button class="' + (estado.admin.abaAtual === 'usuarios' ? 'marcada' : '') + '" onclick="abaAdmin(\'usuarios\')">Usuários</button>' +
+    '<button class="' + (estado.admin.abaAtual === 'relatorios' ? 'marcada' : '') + '" onclick="abaAdmin(\'relatorios\')">Relatórios</button>' +
+    '</div>';
+  if (estado.admin.abaAtual === 'pedidos') html += adminPedidos();
+  if (estado.admin.abaAtual === 'usuarios') html += adminUsuarios();
+  if (estado.admin.abaAtual === 'relatorios') html += adminRelatorios();
+  return html;
+}
+
+function abaAdmin(aba) { estado.admin.abaAtual = aba; desenhar(); }
+
+function adminPedidos() {
+  const S = estado.config.status;
+  const ordem = [S.EM_ANALISE, S.CORRECAO, S.ACEITO, S.DISPONIVEL, S.AGUARDANDO_COMPROVANTE, S.ENTREGUE, S.CANCELADO];
+
+  let html = '<div class="numeros">';
+  ordem.forEach(function (s) {
+    html += '<div><b>' + (estado.admin.resumo[s] || 0) + '</b><span>' + escapar(s) + '</span></div>';
+  });
+  html += '</div>';
+
+  html += '<div class="filtros"><button class="' + (estado.admin.filtro === 'TODOS' ? 'marcada' : '') +
+    '" onclick="filtrarAdmin(\'TODOS\')">Todos</button>';
+  ordem.forEach(function (s) {
+    html += '<button class="' + (estado.admin.filtro === s ? 'marcada' : '') + '" onclick="filtrarAdmin(\'' +
+      s.replace(/'/g, '') + '\')">' + escapar(s) + '</button>';
+  });
+  html += '</div>';
+
+  const lista = estado.admin.pedidos.filter(function (p) {
+    return estado.admin.filtro === 'TODOS' || p.status === estado.admin.filtro;
+  });
+
+  if (!lista.length) return html + '<div class="cartao"><h3>Nada nesta etapa</h3><p class="sub">Assim que chegar um pedido nesta situação ele aparece aqui.</p></div>';
+
+  lista.forEach(function (p) {
+    html += '<div class="pedido"><div class="cab">' +
+      '<span class="id">' + escapar(p.id) + '</span>' +
+      '<span class="selo ' + corDoStatus(p.status) + '">' + escapar(p.status) + '</span>' +
+      '<span class="espaco"></span>' +
+      '<span>' + escapar(p.nome) + ' · ' + escapar(p.whatsapp) + '</span>' +
+      '<b>' + moeda(p.total) + '</b></div><div class="corpo"><ul>';
+    p.itens.forEach(function (i) {
+      html += '<li><span>' + escapar(i.rotulo) + ' — ' + (i.para === 'eu' ? 'para o solicitante' : escapar(i.nomeUso)) +
+        ' × ' + i.quantidade + '</span><span>' + moeda(i.subtotal) + '</span></li>';
+    });
+    html += '</ul>';
+
+    if (p.comprovanteUrl) {
+      html += '<p style="margin-top:10px"><a href="' + escapar(p.comprovanteUrl) + '" target="_blank" rel="noopener">Abrir comprovante</a></p>';
+    } else {
+      html += '<p style="margin-top:10px"><small>Sem comprovante anexado.</small></p>';
+    }
+    if (p.observacaoAdmin) html += '<div class="aviso atencao" style="margin-top:10px">Correção pedida: ' + escapar(p.observacaoAdmin) + '</div>';
+
+    html += '<div class="acoes" style="margin-top:14px">' + botoesAdmin(p) + '</div>';
+
+    html += '<div class="linha-tempo">';
+    p.historico.slice(-5).forEach(function (h) {
+      html += '<div>' + escapar(h.quando) + ' · ' + escapar(h.quem) + ' — ' + escapar(h.oque) + '</div>';
+    });
+    html += '</div></div></div>';
+  });
+  return html;
+}
+
+function botoesAdmin(p) {
+  const S = estado.config.status;
+  const b = function (rotulo, status, classe) {
+    return '<button class="' + (classe || '') + ' pequeno" onclick="mudarStatus(\'' + p.id + '\',\'' +
+      status.replace(/'/g, '') + '\')">' + rotulo + '</button>';
+  };
+  let html = '';
+  if (p.status === S.EM_ANALISE) {
+    html += b('Aceitar pedido', S.ACEITO);
+    html += '<button class="secundario pequeno" onclick="pedirCorrecao(\'' + p.id + '\')">Pedir correção</button>';
+  }
+  if (p.status === S.ACEITO) html += b('Uniforme recebido — liberar entrega', S.DISPONIVEL);
+  if (p.status === S.DISPONIVEL) html += b('Marcar como entregue', S.ENTREGUE, 'secundario');
+  if (p.status === S.CORRECAO) html += '<small>Aguardando o solicitante corrigir.</small>';
+  if (p.status !== S.CANCELADO && p.status !== S.ENTREGUE) {
+    html += '<button class="texto" onclick="mudarStatus(\'' + p.id + '\',\'' + S.CANCELADO + '\')">Cancelar</button>';
+  }
+  return html;
+}
+
+function filtrarAdmin(s) { estado.admin.filtro = s; desenhar(); }
+
+function mudarStatus(id, status, observacao) {
+  chamar('adminMudarStatus', { pedidoId: id, status: status, observacao: observacao || '' })
+    .then(function () { carregarAdmin().then(function () { avisar('Pedido atualizado.', 'ok'); }); })
+    .catch(function (e) { avisar(e.message, 'erro'); });
+}
+
+function pedirCorrecao(id) {
+  const caixa = document.createElement('div');
+  caixa.className = 'cortina';
+  caixa.innerHTML = '<div class="modal"><h2>O que precisa ser corrigido?</h2>' +
+    '<p class="sub" style="color:var(--texto-fraco);margin-bottom:14px">O solicitante vê esta mensagem e reenvia o pedido.</p>' +
+    '<textarea id="motivo" placeholder="Ex.: o comprovante está ilegível, reenvie o print completo."></textarea>' +
+    '<div class="acoes fim" style="margin-top:14px">' +
+    '<button class="secundario" id="cancelaModal">Voltar</button>' +
+    '<button id="confirmaModal">Devolver para correção</button></div></div>';
+  document.body.appendChild(caixa);
+  caixa.querySelector('#cancelaModal').onclick = function () { caixa.remove(); };
+  caixa.querySelector('#confirmaModal').onclick = function () {
+    const motivo = caixa.querySelector('#motivo').value.trim();
+    if (!motivo) { caixa.querySelector('#motivo').focus(); return; }
+    caixa.remove();
+    mudarStatus(id, estado.config.status.CORRECAO, motivo);
+  };
+}
+
+function adminUsuarios() {
+  let html = '<div class="cartao"><h2>Usuários cadastrados</h2>' +
+    '<p class="sub">Quem não consegue entrar volta para a senha padrão do sistema. Ela aparece nesta tela ' +
+    'na hora do reset, e a pessoa é obrigada a criar uma senha nova no próximo acesso.</p>' +
+    '<div class="rolagem"><table class="tabela"><thead><tr>' +
+    '<th>Nome</th><th>Usuário</th><th>WhatsApp</th><th>Nascimento</th><th>Perfil</th><th>Pedidos</th><th>Ações</th>' +
+    '</tr></thead><tbody>';
+
+  estado.admin.usuarios.forEach(function (u) {
+    html += '<tr><td>' + escapar(u.nome) + (u.senhaTemporaria ? ' <span class="selo ambar">senha padrão</span>' : '') +
+      '</td><td>' + escapar(u.usuario || '—') + '</td><td>' + escapar(u.whatsapp) + '</td>' +
+      '<td>' + escapar(u.nascimento) + '</td>' +
+      '<td>' + (u.perfil === 'admin' ? 'Administrador' : 'Solicitante') + '</td>' +
+      '<td>' + u.pedidos + '</td><td><div class="acoes">' +
+      '<button class="secundario pequeno" onclick="resetarSenha(\'' + u.id + '\')">Resetar senha</button>' +
+      (u.id === estado.usuario.id ? '' :
+        '<button class="texto" onclick="definirPerfil(\'' + u.id + '\',\'' +
+        (u.perfil === 'admin' ? 'solicitante' : 'admin') + '\')">' +
+        (u.perfil === 'admin' ? 'Remover admin' : 'Tornar admin') + '</button>') +
+      '</div></td></tr>';
+  });
+
+  html += '</tbody></table></div></div>';
+  return html;
+}
+
+function resetarSenha(id) {
+  if (!confirm('Redefinir a senha deste usuário para a senha padrão?')) return;
+  chamar('adminResetarSenha', { usuarioId: id })
+    .then(function (r) {
+      carregarAdmin().then(function () {
+        avisar('Senha de ' + r.nome + ' redefinida para "' + r.senha + '". Avise a pessoa por WhatsApp.', 'ok');
+      });
+    })
+    .catch(function (e) { avisar(e.message, 'erro'); });
+}
+
+function definirPerfil(id, perfil) {
+  chamar('adminDefinirPerfil', { usuarioId: id, perfil: perfil })
+    .then(function () { carregarAdmin().then(function () { avisar('Perfil atualizado.', 'ok'); }); })
+    .catch(function (e) { avisar(e.message, 'erro'); });
+}
+
+function adminRelatorios() {
+  const S = estado.config.status;
+  const ordem = [S.AGUARDANDO_COMPROVANTE, S.EM_ANALISE, S.CORRECAO, S.ACEITO, S.DISPONIVEL, S.ENTREGUE, S.CANCELADO];
+  const precos = estado.config.precos;
+
+  let html = '<div class="cartao"><h2>Peças por tamanho</h2>' +
+    '<p class="sub">Soma de todos os pedidos que não foram cancelados.</p><div class="numeros">';
+  Object.keys(precos).forEach(function (k) {
+    html += '<div><b>' + (estado.admin.pecas[k] || 0) + '</b><span>' + escapar(precos[k].rotulo) + '</span></div>';
+  });
+  html += '</div></div>';
+
+  html += '<div class="cartao" style="margin-top:18px"><h2>Baixar inscrições</h2>' +
+    '<p class="sub">Gera uma planilha CSV com uma linha por uniforme. Abre direto no Excel e no Google Planilhas.</p>' +
+    '<div class="campo"><label for="etapaExport">Etapa</label><select id="etapaExport">' +
+    '<option value="TODOS">Todas as etapas</option>';
+  ordem.forEach(function (s) { html += '<option value="' + escapar(s) + '">' + escapar(s) + '</option>'; });
+  html += '</select></div><div class="acoes">' +
+    '<button onclick="baixarCsv(this)">Baixar CSV</button>' +
+    '<button class="secundario" onclick="abrirPlanilha(this)">Abrir planilha do banco</button></div></div>';
+  return html;
+}
+
+function baixarCsv(botao) {
+  limparAviso();
+  ocupado(botao, true);
+  chamar('adminExportar', { status: el('etapaExport').value })
+    .then(function (r) {
+      const link = document.createElement('a');
+      link.href = 'data:text/csv;base64,' + r.conteudo;
+      link.download = r.nome;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      ocupado(botao, false, 'Baixar CSV');
+      avisar(r.linhas + ' linha(s) exportada(s).', 'ok');
+    })
+    .catch(function (e) { ocupado(botao, false, 'Baixar CSV'); avisar(e.message, 'erro'); });
+}
+
+function abrirPlanilha(botao) {
+  ocupado(botao, true);
+  chamar('adminPlanilha').then(function (r) {
+    ocupado(botao, false, 'Abrir planilha do banco');
+    window.open(r.url, '_blank');
+  }).catch(function (e) { ocupado(botao, false, 'Abrir planilha do banco'); avisar(e.message, 'erro'); });
+}
+</script>
+
+</body>
+</html>
