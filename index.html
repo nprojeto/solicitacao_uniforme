@@ -451,10 +451,10 @@ function cartaoSuporte() {
 
 function telaEntrar() {
   return '<div class="centro"><h1>Uniforme do time</h1>' +
-    '<p class="sub" style="color:var(--texto-fraco);margin:6px 0 20px">Use o WhatsApp do seu cadastro. Quem tem nome de usuário pode entrar por ele.</p>' +
+    '<p class="sub" style="color:var(--texto-fraco);margin:6px 0 20px">Entre com o WhatsApp do seu cadastro.</p>' +
     '<div class="cartao destaque">' +
-    '<div class="campo"><label for="e_login">Usuário ou WhatsApp</label>' +
-    '<input id="e_login" data-mascara="login" autocapitalize="none" placeholder="seu.usuario ou (12) 90000-0000"></div>' +
+    '<div class="campo"><label for="e_login">WhatsApp</label>' +
+    '<input id="e_login" data-mascara="fone" inputmode="numeric" placeholder="(12) 90000-0000"></div>' +
     '<div class="campo"><label for="e_senha">Senha</label>' +
     '<input id="e_senha" type="password" placeholder="Sua senha" onkeydown="if(event.key===\'Enter\')entrar(this)"></div>' +
     '<div class="acoes"><button onclick="entrar(this)">Entrar</button>' +
@@ -546,7 +546,6 @@ function trocarSenha(botao) {
 function aplicarMascaras() {
   Array.prototype.forEach.call(document.querySelectorAll('[data-mascara]'), function (campo) {
     campo.addEventListener('input', function () {
-      if (campo.dataset.mascara === 'login' && /[a-zA-Z@._-]/.test(campo.value)) return;
       let d = campo.value.replace(/\D/g, '').slice(0, 11);
       let saida = '';
       if (d.length) saida = '(' + d.slice(0, 2);
@@ -1068,13 +1067,12 @@ function adminUsuarios() {
     '<p class="sub">Quem não consegue entrar volta para a senha padrão do sistema. Ela aparece nesta tela ' +
     'na hora do reset, e a pessoa é obrigada a criar uma senha nova no próximo acesso.</p>' +
     '<div class="rolagem"><table class="tabela"><thead><tr>' +
-    '<th>Nome</th><th>Usuário</th><th>WhatsApp</th><th>Nascimento</th><th>Perfil</th><th>Pedidos</th><th>Ações</th>' +
+    '<th>Nome</th><th>WhatsApp</th><th>Nascimento</th><th>Perfil</th><th>Pedidos</th><th>Ações</th>' +
     '</tr></thead><tbody>';
 
   estado.admin.usuarios.forEach(function (u) {
     html += '<tr><td>' + escapar(u.nome) + (u.senhaTemporaria ? ' <span class="selo ambar">senha padrão</span>' : '') +
-      '</td><td>' + escapar(u.usuario || '—') + '</td><td>' + escapar(u.whatsapp) + '</td>' +
-      '<td>' + escapar(u.nascimento) + '</td>' +
+      '</td><td>' + escapar(u.whatsapp) + '</td><td>' + escapar(u.nascimento) + '</td>' +
       '<td>' + (u.perfil === 'admin' ? 'Administrador' : 'Solicitante') + '</td>' +
       '<td>' + u.pedidos + '</td><td><div class="acoes">' +
       '<button class="secundario pequeno" onclick="resetarSenha(\'' + u.id + '\')">Resetar senha</button>' +
