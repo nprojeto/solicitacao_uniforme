@@ -1063,7 +1063,21 @@ function pedirCorrecao(id) {
 }
 
 function adminUsuarios() {
-  let html = '<div class="cartao"><h2>Usuários cadastrados</h2>' +
+  let html = '<div class="cartao destaque"><h2>Criar acesso</h2>' +
+    '<p class="sub">A pessoa entra com o WhatsApp e a senha padrão, e troca a senha no primeiro acesso. ' +
+    'Use isto para dar acesso a outro administrador sem esperar que ele se cadastre.</p>' +
+    '<div class="item"><div class="linha">' +
+    '<div class="campo"><label for="n_nome">Nome completo</label><input id="n_nome" placeholder="Nome de quem vai usar"></div>' +
+    '<div class="campo"><label for="n_fone">WhatsApp</label>' +
+    '<input id="n_fone" data-mascara="fone" inputmode="numeric" placeholder="(12) 90000-0000"></div>' +
+    '<div class="campo"><label for="n_nasc">Nascimento</label><input id="n_nasc" type="date"></div>' +
+    '<div class="campo"><label for="n_perfil">Perfil</label><select id="n_perfil">' +
+    '<option value="admin">Administrador</option><option value="solicitante">Solicitante</option>' +
+    '</select></div></div>' +
+    '<div class="acoes" style="margin-top:12px"><button onclick="criarAcesso(this)">Criar acesso</button></div>' +
+    '</div></div>';
+
+  html += '<div class="cartao" style="margin-top:18px"><h2>Usuários cadastrados</h2>' +
     '<p class="sub">Quem não consegue entrar volta para a senha padrão do sistema. Ela aparece nesta tela ' +
     'na hora do reset, e a pessoa é obrigada a criar uma senha nova no próximo acesso.</p>' +
     '<div class="rolagem"><table class="tabela"><thead><tr>' +
@@ -1085,6 +1099,23 @@ function adminUsuarios() {
 
   html += '</tbody></table></div></div>';
   return html;
+}
+
+function criarAcesso(botao) {
+  limparAviso();
+  const nasc = el('n_nasc').value;
+  ocupado(botao, true);
+  chamar('adminCriarUsuario', {
+    nome: el('n_nome').value,
+    whatsapp: el('n_fone').value,
+    nascimento: nasc ? nasc.split('-').reverse().join('/') : '',
+    perfil: el('n_perfil').value
+  }).then(function (r) {
+    carregarAdmin().then(function () {
+      avisar(r.nome + ' já pode entrar com o WhatsApp ' + r.whatsapp + ' e a senha "' + r.senha +
+        '". Avise a pessoa — o sistema pede uma senha nova no primeiro acesso.', 'ok');
+    });
+  }).catch(function (e) { ocupado(botao, false, 'Criar acesso'); avisar(e.message, 'erro'); });
 }
 
 function resetarSenha(id) {
